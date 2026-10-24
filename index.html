@@ -170,7 +170,52 @@ function fillClasses(el,first=true){el.innerHTML=(first?'<option value="">Pilih 
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();const u=$('#username').value.trim().toLowerCase(),p=$('#password').value;const a=data.accounts.find(x=>x.username.toLowerCase()===u&&x.password===p&&x.active!==false);if(!a){$('#loginMsg').textContent='Username atau kata sandi salah, atau akun tidak aktif.';return}current=a;$('#loginMsg').textContent='';$('#who').textContent=a.name;$('#logout').classList.remove('hidden');if(a.role==='admin'){show('adminPage');renderAccounts();renderTeacherNames();renderStudents();renderAllJournals()}else{show('teacherPage');$('#teacherName').textContent=a.name;renderMyJournals()}});
 $('#logout').addEventListener('click',()=>{current=null;$('#who').textContent='';$('#logout').classList.add('hidden');$('#loginForm').reset();show('loginPage')});
 $('#classSelect').addEventListener('change',()=>{let c=$('#classSelect').value,s=$('#studentSelect');s.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';s.disabled=!c});
-$('#journalForm').addEventListener('submit',e=>{e.preventDefault();if(!current||current.role!=='teacher')return;const cls=$('#classSelect').value,name=$('#studentSelect').value,content=$('#content').value.trim(),journalDate=$('#journalDate').value;if(!cls||!name||!content||!journalDate)return;data.journals.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),owner:current.username,teacherName:current.name,entryType:'teacher',cls,name,content,date:journalDate,updatedAt:new Date().toISOString()});save();$('#message').textContent='Jurnal berhasil disimpan di browser ini. Riwayat Anda diperbarui.';$('#message').className='status success';$('#content').value='';$('#journalDate').value=dateKey();renderMyJournals()});
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmRm4yIW8p7MXEolA2h3vkX54H8GxiT3zf283ikBPgbEk4CQ7U5s-yvLk3kHf6y5KOvA/exec';
+
+$('#studentJournalForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const kelas = $('#studentClassSelect').value;
+  const nama = $('#studentNameSelect').value;
+  const tanggal = $('#studentJournalDate').value;
+  const refleksi = $('#studentContent').value.trim();
+  const pesan = $('#studentMessage');
+  const tombol = $('#studentJournalForm button[type="submit"]');
+
+  if (!kelas || !nama || !tanggal || !refleksi) return;
+
+  tombol.disabled = true;
+  pesan.textContent = 'Mengirim jurnal...';
+  pesan.className = 'status';
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify({
+        kelas,
+        nama,
+        tanggal,
+        refleksi
+      })
+    });
+
+    pesan.textContent =
+      'Permintaan telah dikirim. Silakan periksa Google Sheets untuk memastikan jurnal tersimpan.';
+    pesan.className = 'status';
+
+  } catch (error) {
+    pesan.textContent =
+      'Pengiriman gagal. Periksa koneksi internet dan coba lagi.';
+    pesan.className = 'status error';
+
+  } finally {
+    tombol.disabled = false;
+  }
+});
 function journalTable(arr,admin=false){if(!arr.length)return '<p class="hint">Belum ada jurnal.</p>';return `<div class="tablewrap"><table><thead><tr>${admin?'<th>Pengisi</th><th>Jenis</th>':''}<th>Tanggal</th><th>Kelas</th><th>Nama siswa</th><th>Jurnal</th></tr></thead><tbody>${arr.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(j=>`<tr>${admin?`<td>${esc(j.entryType==='student'?j.name:(j.teacherName||j.owner||''))}</td><td>${j.entryType==='student'?'Siswa':'Guru'}</td>`:''}<td>${esc(j.date)}</td><td>${esc(j.cls)}</td><td>${esc(j.name)}</td><td>${esc(j.content)}</td></tr>`).join('')}</tbody></table></div>`}
 function renderMyJournals(){if(!current)return;$('#myJournals').innerHTML=journalTable(data.journals.filter(j=>j.owner===current.username))}function renderAllJournals(){if(current?.role==='admin')$('#allJournals').innerHTML=journalTable(data.journals,true)}
 function exportExcel(scope){if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;if(typeof XLSX==='undefined'){alert('Fitur Excel membutuhkan koneksi internet saat membuka halaman. Muat ulang halaman dengan internet aktif, lalu coba lagi.');return}const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();const wb=XLSX.utils.book_new();classes.forEach(cls=>{const dates=[...new Set(records.filter(j=>j.cls===cls).map(j=>j.date).filter(Boolean))].sort();const rows=[['Nama siswa',...dates]];const roster=[...(data.roster[cls]||[])];records.filter(j=>j.cls===cls).forEach(j=>{if(j.name&&!roster.includes(j.name))roster.push(j.name)});roster.sort((a,b)=>a.localeCompare(b,'id'));roster.forEach(name=>{const row=[name];dates.forEach(date=>{const matching=records.filter(j=>j.cls===cls&&j.name===name&&j.date===date);row.push(matching.map(j=>j.content).filter(Boolean).join('\n'))});rows.push(row)});const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:34},...dates.map(()=>({wch:38}))];ws['!freeze']={xSplit:1,ySplit:1};XLSX.utils.book_append_sheet(wb,ws,cls)});const today=dateKey();const filename='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';XLSX.writeFile(wb,filename)}
