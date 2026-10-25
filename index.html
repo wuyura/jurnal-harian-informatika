@@ -140,18 +140,650 @@ footer{margin-top:28px;border-top:1px solid #e0e8f3;text-align:center;padding-to
 #teacherNamesTable td:last-child{white-space:nowrap}
 @media(max-width:600px){#teacherNamesTab .row{display:flex;flex-direction:column;align-items:stretch}#teacherNamesTab .row button{width:100%}}
 </style>
+
+<style id="responsive-mobile-laptop-adjustments">
+/* Responsif: HP, tablet, laptop */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { overflow-wrap: anywhere; }
+img, video, canvas, svg { max-width: 100%; }
+input, select, textarea, button { max-width: 100%; }
+input, select, textarea { min-width: 0; }
+main { width: min(100% - 32px, 1040px); }
+header { gap: 12px; }
+header > div:last-child { display: flex; align-items: center; gap: 8px; }
+.panel { min-width: 0; }
+.row, .filter-grid, .journal-summary { min-width: 0; }
+.row > div { min-width: 0; }
+.tablewrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tablewrap table { min-width: 600px; }
+button, .tab { touch-action: manipulation; }
+button:focus-visible, .tab:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(66,99,235,.28);
+  outline-offset: 2px;
+}
+#studentJournalForm textarea, #journalForm textarea { min-height: 135px; }
+#completionChecker .filter-grid { align-items: end; }
+#checkFilledList, #checkMissingList { overflow-wrap: anywhere; }
+#checkFilledList .reflection { overflow-wrap: anywhere; }
+#adminPage .tabs { display: flex; flex-wrap: wrap; }
+#adminPage .tab { min-height: 42px; }
+#accountsTab .row { align-items: end; }
+#accountsTab .row > div { flex: 1 1 220px; }
+#accountsTab .row button { flex: 0 0 auto; }
+footer { overflow-wrap: anywhere; }
+
+@media (min-width: 900px) {
+  main { width: min(100% - 48px, 1120px); }
+  #teacherPage, #adminPage { display: block; }
+  #teacherPage > .panel, #adminPage > .panel { padding: 28px; }
+  #adminPage .filter-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 0 18px; }
+  #adminPage .journal-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #adminPage .tabs { gap: 10px; }
+  #adminPage .tab { padding: 11px 16px; }
+}
+@media (max-width: 700px) {
+  main { width: 100%; margin: 20px auto; padding: 0 12px; }
+  header { position: sticky; top: 0; padding: 10px 12px; align-items: center; }
+  .brand { font-size: .9rem; min-width: 0; }
+  #who { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #logout { white-space: nowrap; }
+  h1 { font-size: clamp(1.8rem, 8vw, 2.35rem); }
+  .panel { padding: 17px; border-radius: 16px; }
+  .row { flex-direction: column; align-items: stretch; }
+  .row > div { width: 100%; }
+  .row button { width: 100%; min-height: 44px; }
+  .today { flex-direction: column; align-items: flex-start; }
+  .today strong { text-align: left; }
+  .filter-grid { grid-template-columns: minmax(0, 1fr); }
+  .journal-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .summary-card { padding: 12px; }
+  .summary-card strong { font-size: 1.45rem; }
+  .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tab { padding: 10px 8px; min-height: 44px; font-size: .84rem; }
+  button.primary { min-height: 46px; }
+  select, input, textarea { font-size: 16px; }
+  #completionChecker { padding: 14px !important; }
+  #checkFilledList .check-list, #checkMissingList .check-list { padding: 12px; }
+  .pagination { gap: 8px; }
+}
+@media (max-width: 390px) {
+  main { padding: 0 9px; }
+  header { padding-left: 9px; padding-right: 9px; }
+  .brand { font-size: .8rem; gap: 6px; }
+  .brand:before { width: 30px; height: 30px; border-radius: 9px; }
+  .panel { padding: 14px; }
+  .journal-summary { grid-template-columns: minmax(0, 1fr); }
+  #adminPage .tabs { grid-template-columns: minmax(0, 1fr); }
+  .tab { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
+
+
+<style id="home-and-teacher-tab-layout">
+header{display:flex;flex-wrap:wrap;gap:12px}
+.top-nav{display:flex;align-items:center;gap:6px;margin-left:auto}
+.top-nav-btn{border:1px solid transparent;background:transparent;color:#385878;border-radius:9px;padding:9px 13px;font:inherit;font-weight:700;cursor:pointer}
+.top-nav-btn.active{background:#edf5ff;border-color:#d7e9fc;color:#176bc1}
+.user-tools{display:flex;align-items:center;gap:8px}
+#homePage{padding-top:10px}
+#homePage h1{max-width:780px}
+.home-action{max-width:640px;margin-top:28px}
+.home-action h2{margin:8px 0}
+.home-action .muted{font-size:1rem}
+.home-icon{width:48px;height:48px;display:grid;place-items:center;background:#edf5ff;color:#176bc1;border-radius:12px;font-size:1.8rem;font-weight:700}
+.home-footer-note{max-width:640px}
+#loginPage{max-width:700px;margin:0 auto}
+#loginPage h1{font-size:clamp(1.7rem,4vw,2.25rem)}
+@media(max-width:560px){
+ header{gap:8px}
+ .top-nav{order:3;width:100%;margin:0}
+ .top-nav-btn{flex:1}
+ .user-tools{margin-left:auto}
+ .home-action{margin-top:20px}
+}
+</style>
+
+
+<style id="digital-informatics-design">
+:root{--tech-blue:#0867df;--tech-deep:#082f70;--tech-ink:#102f65;--tech-line:#dceaff}
+body{background:#f3f8ff;color:var(--tech-ink)}
+header{background:rgba(255,255,255,.96);border-bottom:1px solid #e1ebfa;box-shadow:0 3px 16px rgba(17,65,132,.06)}
+.brand:before{content:"▣";font-size:1.3rem;background:linear-gradient(135deg,#0d8df0,#584df2);border:0;color:#fff;box-shadow:0 8px 18px #266fe52b}
+main{max-width:1240px;margin:0 auto;padding:0 22px}
+.top-nav-btn.active{background:#e8f2ff;color:#0867c8;border-color:#d6e8ff}
+#homePage.digital-home{padding:26px 0 10px}
+.home-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;min-height:300px;padding:32px 38px;border:1px solid #dceaff;border-radius:24px;background:radial-gradient(circle at 80% 10%,#b9e1ff 0,transparent 32%),linear-gradient(120deg,#fff 5%,#edf7ff 62%,#d8edff 100%);box-shadow:0 12px 34px #175db40d}
+.hero-copy{position:relative;z-index:2}
+#homePage .eyebrow{display:inline-flex;background:#e7f3ff;color:#1769bc;letter-spacing:.06em;margin-bottom:10px}
+#homePage h1{font-size:clamp(2.5rem,6vw,4.4rem);line-height:1;letter-spacing:-.055em;margin:12px 0 14px;color:#0b2c61}
+#homePage h1 span{color:#0874ed}
+.hero-lead{font-size:clamp(1.25rem,2.5vw,1.8rem);font-weight:800;line-height:1.3;max-width:520px;margin:0 0 12px}
+.hero-sub{font-size:1rem;color:#536c91;line-height:1.65;max-width:520px;margin:0}
+.hero-art{height:245px;position:relative;display:grid;place-items:center;isolation:isolate}
+.orbit{position:absolute;border:1px dashed #8ecbff;border-radius:50%;transform:rotate(-20deg)}
+.orbit-one{width:250px;height:170px}.orbit-two{width:300px;height:205px;transform:rotate(35deg)}
+.laptop-art{position:relative;width:215px;height:160px;transform:rotate(-7deg);filter:drop-shadow(0 18px 15px #1b62a72c);z-index:2}
+.laptop-screen{position:absolute;top:0;left:20px;width:178px;height:122px;border:8px solid #1765c7;border-radius:13px;background:linear-gradient(145deg,#09275f,#124fa9);display:flex;align-items:center;justify-content:center;color:#40e2ff;font-size:2.6rem;font-weight:900;letter-spacing:-.1em;box-shadow:inset 0 0 0 2px #79c7ff}
+.laptop-base{position:absolute;bottom:16px;left:0;width:215px;height:18px;background:linear-gradient(#9bcfff,#4d8de0);border-radius:4px 4px 14px 14px;transform:perspective(80px) rotateX(12deg)}
+.float-tile{position:absolute;z-index:3;display:grid;place-items:center;width:54px;height:54px;border-radius:15px;font-weight:900;font-size:1.65rem;box-shadow:0 10px 18px #1b62a71b}
+.tile-code{right:8%;top:25%;background:#d6f7ff;color:#0673bc;transform:rotate(8deg)}
+.tile-bulb{left:12%;top:14%;background:#fff0a9;color:#f1a600;transform:rotate(-10deg)}
+.tile-file{left:9%;bottom:12%;background:#c9fff0;color:#00a78c;transform:rotate(9deg)}
+.pixel{position:absolute;width:12px;height:12px;background:#51b6ff;border-radius:3px;opacity:.8}
+.pixel-a{right:12%;bottom:15%}.pixel-b{right:20%;top:8%;width:8px;height:8px}.pixel-c{left:19%;top:34%;width:7px;height:7px}
+.reflection-prompts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}
+.prompt-card{padding:19px;border:1px solid transparent;border-radius:17px;min-height:155px}
+.prompt-card h2{font-size:1.03rem;line-height:1.35;margin:10px 0 7px}
+.prompt-card p{font-size:.9rem;line-height:1.5;color:#45638c;margin:0}
+.prompt-mint{background:linear-gradient(135deg,#e0fff5,#f3fffb);border-color:#c9f7e9}
+.prompt-pink{background:linear-gradient(135deg,#fff0f5,#fff8fb);border-color:#ffdee9}
+.prompt-yellow{background:linear-gradient(135deg,#fff8d9,#fffdf1);border-color:#f8edb9}
+.prompt-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:12px;background:#14c9a5;color:white;font-size:1.45rem;font-weight:900;box-shadow:0 7px 12px #12b99525}
+.prompt-pink .prompt-icon{background:#ff6b83}.prompt-yellow .prompt-icon{background:#ffc928;color:#fff}
+button.primary.home-student-button{display:flex;align-items:center;justify-content:center;gap:15px;width:100%;margin:0;padding:18px 20px;border-radius:17px;background:linear-gradient(100deg,#0878ed,#075ee0);box-shadow:0 12px 22px #0867df25;font-size:clamp(1.05rem,2.5vw,1.35rem);min-height:68px}
+button.primary.home-student-button:hover{background:linear-gradient(100deg,#0568d5,#064fca);transform:translateY(-1px)}
+button.primary.home-student-button span:first-child{font-size:1.4em}
+button.primary.home-student-button span:last-child{font-size:1.7em;line-height:.7}
+.encouragement{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #e1ecfb;border-radius:16px;padding:16px 19px;margin:18px 0 28px;box-shadow:0 5px 18px #1d5da80a}
+.encouragement-star{flex:0 0 48px;height:48px;display:grid;place-items:center;border-radius:50%;background:#fff5c7;color:#f4b800;font-size:1.7rem}
+.encouragement strong{font-size:1rem}.encouragement p{margin:3px 0 0;color:#627795;font-size:.9rem}
+.teacher-tools{background:#fff;border:1px solid #e1ecfb;border-radius:22px;padding:20px;box-shadow:0 8px 25px #175db40b}
+.teacher-tools-heading{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.teacher-tools-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#e9f3ff;color:#0871df;font-size:1.5rem}
+.teacher-tools-heading h2{margin:0;font-size:1.25rem}.teacher-tools-heading p{margin:3px 0 0;color:#607696;font-size:.92rem}
+.teacher-tools-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.teacher-tool{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;min-width:0;min-height:155px;padding:15px 10px;border:1px solid #e0edfc;border-radius:14px;background:#f3f8ff;color:#14396f;font:inherit;cursor:pointer}
+.teacher-tool:hover{background:#e8f3ff;border-color:#bddcff}
+.teacher-tool>span{font-size:1.9rem;line-height:1.2;color:#0878ed;font-weight:900}
+.teacher-tool strong{font-size:.9rem;line-height:1.3}.teacher-tool small{font-size:.78rem;line-height:1.4;color:#627b9d}
+.digital-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:22px 4px 28px;color:#59759b;font-size:.85rem}
+.digital-footer strong{color:#0871df;font-weight:700}
+#loginPage{max-width:680px;margin:28px auto}
+#loginPage .panel{box-shadow:0 12px 34px #175db40d}
+@media(max-width:900px){.teacher-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.home-hero{padding:26px;grid-template-columns:1fr .75fr}.hero-art{transform:scale(.9)}}
+@media(max-width:620px){
+ main{padding:0 13px}
+ #homePage.digital-home{padding-top:14px}
+ .home-hero{grid-template-columns:1fr;gap:0;padding:22px 20px 12px;border-radius:19px;min-height:0}
+ #homePage h1{font-size:3rem}
+ .hero-lead{font-size:1.35rem}
+ .hero-sub{font-size:.94rem}
+ .hero-art{height:170px;transform:scale(.83);margin-top:-4px}
+ .reflection-prompts{grid-template-columns:1fr;gap:9px;margin:13px 0}
+ .prompt-card{min-height:0;padding:13px 14px;display:grid;grid-template-columns:44px 1fr;column-gap:12px;align-items:center}
+ .prompt-icon{grid-row:span 2}
+ .prompt-card h2{margin:0 0 3px;font-size:.97rem}
+ .prompt-card p{font-size:.84rem}
+ button.primary.home-student-button{min-height:60px;padding:15px 10px;font-size:1.02rem;gap:10px;border-radius:13px}
+ .encouragement{margin:13px 0 20px;padding:13px;gap:10px}
+ .encouragement-star{flex-basis:40px;height:40px}
+ .teacher-tools{padding:14px;border-radius:17px}
+ .teacher-tools-heading{align-items:flex-start}
+ .teacher-tools-heading p{font-size:.83rem}
+ .teacher-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .teacher-tool{min-height:128px;padding:12px 8px}
+ .teacher-tool strong{font-size:.85rem}
+ .teacher-tool small{font-size:.75rem}
+ .digital-footer{padding:18px 2px 26px;font-size:.78rem}
+}
+</style>
+
+
+<style id="teacher-area-digital-theme">
+.digital-login{display:grid;grid-template-columns:.85fr 1fr;gap:18px;align-items:stretch;max-width:850px!important;margin:30px auto!important}
+.login-hero{position:relative;overflow:hidden;padding:28px 24px;border-radius:20px;background:radial-gradient(circle at 90% 8%,#43b9ff66,transparent 30%),linear-gradient(145deg,#062f70,#0875e9);color:#fff;min-height:360px}
+.login-hero .eyebrow{background:#ffffff1b;color:#dceeff;border:1px solid #ffffff25}
+.login-hero h1{font-size:clamp(2rem,4vw,2.8rem);color:#fff;margin:10px 0}
+.login-hero .muted{color:#d6e8ff}
+.login-lock{display:grid;place-items:center;width:58px;height:58px;border-radius:17px;background:#ffffff1b;border:1px solid #ffffff30;font-size:2rem;margin-bottom:22px}
+.login-tech-art{position:absolute;bottom:20px;left:24px;right:24px;height:115px;border:1px solid #ffffff2b;border-radius:16px;background:linear-gradient(135deg,#ffffff12,#ffffff06);display:grid;place-items:center}
+.login-tech-art span{font-size:2.8rem;font-weight:900;color:#48e0ff;text-shadow:0 0 22px #26b8ff80}
+.login-tech-art i,.login-tech-art b{position:absolute;width:10px;height:10px;background:#64d7ff;border-radius:3px;top:18px;left:20px}
+.login-tech-art b{top:auto;left:auto;right:23px;bottom:18px;background:#ffcf4b}
+.login-panel{margin:0;padding:clamp(20px,4vw,30px);border-radius:20px;box-shadow:0 12px 35px #1559a314}
+.digital-login label{color:#294867}
+.digital-login input{min-height:52px;border-radius:11px;background:#f9fbff;border-color:#d5e4f5}
+.digital-login button.primary{background:linear-gradient(100deg,#0878ed,#075ee0);border-radius:11px;box-shadow:0 10px 20px #0867df25}
+.teacherPage .teacher-tools,.adminPage .teacher-tools,#teacherPage .teacher-tools,#adminPage .teacher-tools{margin:20px 0 24px}
+#teacherPage>h1,#adminPage>h1{color:#0b2c61}
+#teacherPage .teacher-tools-grid,#adminPage .teacher-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:650px){
+ .digital-login{grid-template-columns:1fr;margin:16px auto!important;gap:12px}
+ .login-hero{min-height:210px;padding:20px;border-radius:17px}
+ .login-lock{width:44px;height:44px;font-size:1.5rem;margin-bottom:12px}
+ .login-tech-art{display:none}
+ .login-hero h1{font-size:2rem}
+ .login-panel{padding:20px}
+ #teacherPage .teacher-tools-grid,#adminPage .teacher-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+
+
+<style id="persistent-session-logout-style">
+#logout{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border-radius:10px;background:#e8f2ff;border:1px solid #cfe3ff;color:#075ec8;font-weight:800;cursor:pointer}
+#logout.hidden{display:none!important}
+.user-tools{gap:10px}
+@media(max-width:560px){#logout{padding:8px 11px;font-size:.9rem}}
+</style>
+
+
+<style id="student-design-safe">
+/* Keep all application views hidden until the navigation script selects one. */
+.hidden { display:none !important; }
+#studentPage:not(.hidden){display:block;max-width:850px;margin:22px auto;padding:0 18px}
+#studentPage .student-hero{position:relative;overflow:hidden;padding:25px 24px;border:1px solid #d5e8ff;border-radius:21px;background:radial-gradient(circle at 90% 0%,#bce7ff,transparent 35%),linear-gradient(120deg,#fff,#e8f5ff 70%,#dceeff);margin-bottom:14px}
+#studentPage .student-hero-badge{display:inline-block;padding:7px 12px;border-radius:999px;background:#e5f1ff;color:#1767bb;font-size:.78rem;font-weight:800;letter-spacing:.08em}
+#studentPage .student-hero h1{margin:13px 0 9px;color:#103366;font-size:clamp(1.8rem,5vw,2.7rem);line-height:1.12;max-width:80%}
+#studentPage .student-hero p{margin:0;max-width:78%;color:#526d91;line-height:1.6}
+#studentPage .student-hero-code{position:absolute;right:22px;top:30px;width:78px;height:78px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#087cf0,#244de0);color:#58e6ff;font-size:1.65rem;font-weight:900;box-shadow:0 12px 24px #0867df2a;transform:rotate(5deg)}
+#studentPage .student-prompt-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 18px}
+#studentPage .student-prompt{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid #dceaff;border-radius:14px}
+#studentPage .student-prompt>span{display:grid;place-items:center;flex:0 0 35px;height:35px;border-radius:10px;background:#fff;font-size:1.2rem;font-weight:900}
+#studentPage .student-prompt strong{display:block;font-size:.9rem;line-height:1.35;color:#153867}
+#studentPage .student-prompt small{display:block;margin-top:3px;color:#627a9b;font-size:.8rem;line-height:1.4}
+#studentPage .prompt-green{background:#eafff7;border-color:#d0f6e9} #studentPage .prompt-green>span{color:#0a9e80}
+#studentPage .prompt-pink{background:#fff0f5;border-color:#ffe0e9} #studentPage .prompt-pink>span{color:#ed6085}
+#studentPage .prompt-yellow{background:#fff9df;border-color:#f7edbf} #studentPage .prompt-yellow>span{color:#d69a00}
+#studentPage .student-form-intro{padding:12px 14px;border-radius:12px;background:#eef7ff;color:#45658b;line-height:1.5;margin-bottom:16px}
+#studentPage .panel{background:#fff;border:1px solid #dce9f8;border-radius:18px;padding:clamp(17px,4vw,27px);box-shadow:0 10px 28px #174f9810}
+#studentPage label{display:block;color:#284b78;font-weight:750;margin:0 0 7px}
+#studentPage input,#studentPage select,#studentPage textarea{width:100%;box-sizing:border-box;border:1px solid #cddff3;border-radius:11px;background:#f9fcff;padding:12px 14px;min-height:48px;color:#18365d;margin-bottom:12px}
+#studentPage textarea{min-height:135px;line-height:1.6}
+#studentPage input:focus,#studentPage select:focus,#studentPage textarea:focus{outline:none;border-color:#4b9af0;box-shadow:0 0 0 3px #0878ed19}
+#studentPage #studentJournalForm button[type="submit"]{width:100%;min-height:54px;border-radius:13px;background:linear-gradient(100deg,#0878ed,#075ee0);font-size:1rem;font-weight:800}
+@media(max-width:600px){
+ #studentPage:not(.hidden){margin:14px auto;padding:0 13px}
+ #studentPage .student-hero{padding:19px 17px;border-radius:17px}
+ #studentPage .student-hero h1{font-size:1.75rem;max-width:77%}
+ #studentPage .student-hero p{font-size:.9rem;max-width:96%}
+ #studentPage .student-hero-code{width:48px;height:48px;right:13px;top:18px;border-radius:12px;font-size:1.05rem}
+ #studentPage .student-prompt-row{grid-template-columns:1fr;gap:8px;margin:11px 0 15px}
+ #studentPage .student-prompt{padding:10px 12px}
+ #studentPage .student-prompt small{font-size:.8rem}
+ #studentPage .panel{padding:16px}
+}
+</style>
+
+
+<style id="admin-tabs-notes-cleanup">
+#adminPage .teacher-tools{margin:18px 0 22px}
+#adminPage .teacher-tools-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#adminPage .teacher-tool{min-height:125px}
+#adminPage .teacher-tool[data-teacher-tab="recap"]{border-top:3px solid #1685ed}
+#adminPage .teacher-tool[data-teacher-tab="missing"]{border-top:3px solid #f2bd35}
+#adminPage .teacher-tool[data-teacher-tab="notes"]{border-top:3px solid #20b89b}
+#adminPage .teacher-tool[data-teacher-tab="export"]{border-top:3px solid #8b70ee}
+#adminPage .teacher-tool[data-teacher-tab="students"]{border-top:3px solid #f17b9a}
+#adminPage .teacher-tool#homeTeacherAccess{border-top:3px solid #0878ed}
+.teacher-name-inline h3{margin:0 0 8px;color:#103365}
+@media(max-width:600px){#adminPage .teacher-tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#adminPage .teacher-tool{min-height:115px}}
+
+</style>
+
+<style id="admin-card-navigation-fix">
+#adminPage .teacher-tool{cursor:pointer;touch-action:manipulation}
+#adminPage .teacher-tool:focus-visible{outline:3px solid #72b7ff;outline-offset:2px}
+#adminPage .panel.hidden{display:none!important}
+#adminPage .panel:not(.hidden){display:block}
+</style>
+
+
+<style id="separate-recap-missing-panels">
+#adminPage #missingTab .filter-grid{margin:14px 0}
+#adminPage #missingTab #checkMissingList{margin-top:14px}
+#adminPage #journalsTab .journal-summary{margin:16px 0}
+</style>
+
+
+<style id="mobile-account-form-spacing-tight">
+/* Perbaikan khusus formulir Akun Guru pada HP */
+@media (max-width: 650px) {
+  #accountsTab {
+    padding: 16px !important;
+  }
+  #accountsTab h2,
+  #accountsTab h3 {
+    margin-top: 0 !important;
+    margin-bottom: 14px !important;
+  }
+  #accountsTab form,
+  #accountsTab .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #accountsTab .row > div,
+  #accountsTab form > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  #accountsTab label {
+    display: block !important;
+    margin: 0 0 6px !important;
+  }
+  #accountsTab input,
+  #accountsTab select,
+  #accountsTab textarea {
+    width: 100% !important;
+    min-height: 46px !important;
+    box-sizing: border-box !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  #accountsTab button {
+    min-height: 46px !important;
+    margin-top: 4px !important;
+  }
+  #accountsTab .teacher-name-inline {
+    margin-top: 18px !important;
+    padding-top: 16px !important;
+  }
+  /* Override any desktop grid spacing applied to form fields */
+  #accountsTab .form-grid,
+  #accountsTab .grid,
+  #accountsTab .filter-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+</style>
+
+
+<style id="account-card-title-consistency">
+/* Samakan gaya kartu Akun Guru dengan lima kartu lainnya */
+#adminPage .teacher-tool[data-teacher-tab="accounts"],
+#adminPage .teacher-tool[data-teacher-tab="account"],
+#adminPage [data-teacher-tab="accounts"] {
+  border-top: 3px solid #8b70ee !important;
+  background: #f1f6fd !important;
+  border-color: #dce8f6 !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="accounts"] {
+  border-top-color: #8b70ee !important;
+}
+#accountsTab h2,
+#accountsTab > h2 {
+  font-size: 1.35rem !important;
+  line-height: 1.3 !important;
+  margin: 0 0 18px !important;
+  color: #17345f !important;
+}
+/* Samakan judul panel dengan nama kartu: Akun Guru */
+#accountsTab > h2:first-child {
+  font-size: 0 !important;
+}
+#accountsTab > h2:first-child::after {
+  content: "Akun Guru";
+  font-size: 1.35rem;
+}
+/* Jika judul formulir tetap diperlukan, gunakan subjudul yang jelas */
+#accountsTab h3 {
+  color: #17345f;
+}
+@media(max-width:650px) {
+  #adminPage .teacher-tool[data-teacher-tab="accounts"] {
+    border-top: 3px solid #8b70ee !important;
+  }
+  #accountsTab > h2:first-child {
+    margin-bottom: 16px !important;
+  }
+}
+</style>
+
+
+<style id="consistent-six-card-titles-and-colors">
+/* Palet konsisten: setiap menu punya aksen berbeda; Kelola Guru bukan ungu */
+#adminPage .teacher-tool[data-teacher-tab="recap"] { border-top: 4px solid #1685ED !important; }
+#adminPage .teacher-tool[data-teacher-tab="missing"] { border-top: 4px solid #E7B52C !important; }
+#adminPage .teacher-tool[data-teacher-tab="notes"] { border-top: 4px solid #20B89B !important; }
+#adminPage .teacher-tool[data-teacher-tab="export"] { border-top: 4px solid #8B70EE !important; }
+#adminPage .teacher-tool[data-teacher-tab="students"] { border-top: 4px solid #ED7A9B !important; }
+#adminPage .teacher-tool[data-teacher-tab="accounts"],
+#adminPage .teacher-tool[data-teacher-tab="account"] {
+  border-top: 4px solid #F07835 !important;
+  background: #FFF8F2 !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="accounts"] strong,
+#adminPage .teacher-tool[data-teacher-tab="account"] strong { color: #8C451E !important; }
+/* Match the heading of the opened panel to its card label */
+#accountsTab > h2:first-child { font-size: 0 !important; }
+#accountsTab > h2:first-child::after {
+  content: "Kelola Guru";
+  font-size: 1.35rem;
+}
+#journalsTab > h2:first-child { font-size: 0 !important; }
+#journalsTab > h2:first-child::after {
+  content: "Rekap Jurnal";
+  font-size: 1.35rem;
+}
+#missingTab > h2:first-child { font-size: 0 !important; }
+#missingTab > h2:first-child::after {
+  content: "Status Pengisian";
+  font-size: 1.35rem;
+}
+#teacherNotesTab > h2:first-child { font-size: 0 !important; }
+#teacherNotesTab > h2:first-child::after {
+  content: "Catatan Guru";
+  font-size: 1.35rem;
+}
+#studentsTab > h2:first-child { font-size: 0 !important; }
+#studentsTab > h2:first-child::after {
+  content: "Data Siswa";
+  font-size: 1.35rem;
+}
+</style>
+
+
+<style id="compact-admin-top">
+/* Merapikan area atas panel admin tanpa mengubah fungsi menu */
+#adminPage > .eyebrow {
+  margin: 4px 0 6px !important;
+  font-size: .72rem !important;
+  letter-spacing: .08em;
+}
+#adminPage > h1 {
+  margin: 0 0 12px !important;
+  line-height: 1.18 !important;
+}
+#adminPage .admin-notice-compact {
+  margin: 0 0 16px !important;
+  padding: 10px 13px !important;
+  border: 1px solid #f0dfb0;
+  border-radius: 13px;
+  background: #fff9e9;
+  color: #735c27;
+  font-size: .86rem;
+}
+#adminPage .admin-notice-compact summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+#adminPage .admin-notice-compact summary::-webkit-details-marker { display:none; }
+#adminPage .admin-notice-compact summary strong { font-size: .88rem; }
+#adminPage .admin-notice-compact summary span {
+  color: #927a42;
+  font-size: .76rem;
+  text-align: right;
+}
+#adminPage .admin-notice-compact p {
+  margin: 9px 0 0;
+  line-height: 1.5;
+}
+#adminPage .teacher-tools { margin-top: 0 !important; }
+@media(max-width:650px) {
+  #adminPage > h1 { font-size: clamp(1.65rem, 7vw, 2.15rem) !important; }
+  #adminPage .admin-notice-compact { padding: 9px 11px !important; }
+  #adminPage .admin-notice-compact summary { align-items: flex-start; }
+}
+</style>
+
+
+<style id="card-soft-fill-matches-accent">
+/* Latar pastel setiap kartu diselaraskan dengan warna aksen di bagian atas */
+#adminPage .teacher-tool[data-teacher-tab="recap"] {
+  background: #EAF4FF !important;
+  border-top-color: #1685ED !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="missing"] {
+  background: #FFF8DF !important;
+  border-top-color: #E7B52C !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="notes"] {
+  background: #E8FBF5 !important;
+  border-top-color: #20B89B !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="students"] {
+  background: #FFF0F5 !important;
+  border-top-color: #ED7A9B !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="accounts"] {
+  background: #FFF0E3 !important;
+  border-top-color: #D96122 !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="export"] {
+  background: #F2EDFF !important;
+  border-top-color: #8B70EE !important;
+}
+#adminPage .teacher-tool[data-teacher-tab="recap"] > span,
+#adminPage .teacher-tool[data-teacher-tab="recap"] strong { color: #1267B5 !important; }
+#adminPage .teacher-tool[data-teacher-tab="missing"] > span,
+#adminPage .teacher-tool[data-teacher-tab="missing"] strong { color: #9A7410 !important; }
+#adminPage .teacher-tool[data-teacher-tab="notes"] > span,
+#adminPage .teacher-tool[data-teacher-tab="notes"] strong { color: #087F6B !important; }
+#adminPage .teacher-tool[data-teacher-tab="students"] > span,
+#adminPage .teacher-tool[data-teacher-tab="students"] strong { color: #B94D73 !important; }
+#adminPage .teacher-tool[data-teacher-tab="accounts"] > span,
+#adminPage .teacher-tool[data-teacher-tab="accounts"] strong { color: #A94D1B !important; }
+#adminPage .teacher-tool[data-teacher-tab="export"] > span,
+#adminPage .teacher-tool[data-teacher-tab="export"] strong { color: #6748C5 !important; }
+#adminPage .teacher-tool small { color: #526A88 !important; }
+#adminPage .teacher-tool:hover { filter: brightness(.985); }
+</style>
+
+
+<style id="confirmed-header-title-edits">
+/* Peran akun tidak ditampilkan di header; tombol Keluar tetap tersedia */
+header #who { display: none !important; }
+/* Pastikan judul memakai kapitalisasi yang diminta */
+#adminPage > h1 { text-transform: none !important; }
+</style>
+
 </head><body>
-<header><div class="brand">Jurnal Harian Informatika</div><div><span id="who" class="hint"></span> <button class="link hidden" id="logout">Keluar</button></div></header>
+<header>
+<div class="brand">Jurnal Harian Informatika</div>
+<nav class="top-nav" aria-label="Navigasi utama">
+<button type="button" class="top-nav-btn active" id="homeTab">Beranda</button>
+<button type="button" class="top-nav-btn" id="teacherAccessTab">Akses Guru</button>
+</nav>
+<div class="user-tools"><span id="who" class="hint"></span> <button class="link hidden" id="logout">↪ Keluar</button></div>
+</header>
 <main>
-<section id="loginPage"><p class="eyebrow">AKSES PENGGUNA</p><h1>Selamat datang.</h1><p class="muted">Satu ruang digital untuk mencatat perjalanan belajar Informatika — rapi, mudah, dan nyaman digunakan.</p><div class="panel"><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required><label for="password">Kata sandi</label><input id="password" type="password" autocomplete="current-password" required><button class="primary" type="submit">Masuk</button><div id="loginMsg" class="status error" role="status"></div></form></div>
-<div class="row" style="margin-top:16px"><button type="button" id="studentAccess" onclick="(function(){var login=document.getElementById('loginPage'),student=document.getElementById('studentPage');if(login)login.classList.add('hidden');if(student)student.classList.remove('hidden');var who=document.getElementById('who');if(who)who.textContent='Akses Siswa';var logout=document.getElementById('logout');if(logout)logout.classList.add('hidden');var date=document.getElementById('studentJournalDate');if(date&&!date.value){var d=new Date();date.value=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}var cls=document.getElementById('studentClassSelect');if(cls&&cls.options.length<=1){['7A','7B','7C','7D','7E','8A','8B','8C','8D','8E','9A','9B','9C','9D','9E'].forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;cls.appendChild(o)})}})()">Saya Siswa — Isi Jurnal</button></div><div class="note" style="margin-top:14px"><strong>Versi HTML pratinjau:</strong> akun dan data masih disimpan di browser ini saja. Ini belum merupakan login aman dan belum berbagi data antarperangkat. Akses siswa tanpa akun belum dapat memastikan identitas siswa; jangan gunakan untuk data sungguhan sebelum backend online dipasang.</div><p class="hint">Akun admin demo: <b>admin</b> / <b>Admin123!</b>. Jika sebelumnya gagal, gunakan file HTML revisi ini dan muat ulang halaman. Setelah backend online, kredensial demo harus diganti.</p></section>
-<section id="studentPage" class="hidden"><p class="eyebrow">AKSES SISWA</p><h1>Isi jurnal Informatika.</h1><p class="muted">Pilih kelas dan nama Anda, lalu ceritakan kegiatan belajar hari ini. Yuk, dokumentasikan proses belajarmu!</p><div class="panel"><form id="studentJournalForm"><label for="studentJournalDate">Tanggal jurnal</label><input id="studentJournalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diubah jika mengisi jurnal untuk tanggal lain.</p><label for="studentClassSelect">Kelas</label><select id="studentClassSelect" required><option value="">Pilih kelas</option></select><label for="studentNameSelect">Nama siswa</label><select id="studentNameSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="studentContent">Jurnal harian</label><textarea id="studentContent" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="studentMessage" class="status" role="status"></div></form><p class="hint">Jurnal yang dikirim tidak ditampilkan kembali di halaman siswa. Admin dapat melihat semua jurnal. Pada versi online nanti, identitas dan hak akses perlu diverifikasi oleh server.</p><button type="button" class="link" id="backToLogin">Kembali ke halaman masuk guru/admin</button></div></section>
-<section id="teacherPage" class="hidden"><p class="eyebrow">JURNAL PEMBELAJARAN</p><h1>Isi jurnal dengan mudah.</h1><p class="muted">Tampilan pengisian dibuat seperti halaman siswa. Pilih siapa yang mengisi jurnal, lalu pilih kelas dan nama siswa yang terkait.</p><div class="panel"><form id="journalForm"><label for="journalDate">Tanggal jurnal</label><input id="journalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diedit sebelum jurnal disimpan.</p><label for="classSelect">Kelas</label><select id="classSelect" required><option value="">Pilih kelas</option></select><label for="studentSelect">Nama siswa</label><select id="studentSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="content">Jurnal harian</label><textarea id="content" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="message" class="status" role="status"></div></form></div><div class="panel"><h2>Riwayat jurnal saya</h2><div id="myJournals"></div><button type="button" class="primary" id="exportTeacherExcel">Ekspor Excel jurnal saya</button><p class="hint">File Excel berisi 15 sheet kelas (7A–7E, 8A–8E, 9A–9E), dengan nama siswa pada baris dan tanggal jurnal pada kolom.</p></div></section>
-<section id="adminPage" class="hidden"><p class="eyebrow">PANEL ADMIN</p><h1>Pengelolaan jurnal</h1><div class="note"><strong>Catatan:</strong> panel ini hanya prototipe lokal. Pembatasan akses belum aman untuk penggunaan nyata sampai dihubungkan ke backend dan database online.</div><div class="tabs"><button class="tab active" data-tab="accountsTab">Akun guru</button><button class="tab" data-tab="teacherNamesTab">Nama guru</button><button class="tab" data-tab="studentsTab">Daftar siswa</button><button class="tab" data-tab="journalsTab">Semua jurnal</button></div>
-<div class="panel" id="accountsTab"><h2>Tambah akun guru</h2><div class="row"><div><label for="newTeacherName">Nama guru</label><input id="newTeacherName" placeholder="Nama lengkap guru"></div><div><label for="newUsername">Username</label><input id="newUsername" placeholder="username"></div></div><label for="newPassword">Kata sandi sementara</label><input id="newPassword" type="password" placeholder="Minimal 6 karakter"><button class="primary" id="addTeacher">Buat akun guru</button><div id="accountMsg" class="status"></div><div id="accountTable" class="tablewrap"></div></div>
-<div class="panel hidden" id="teacherNamesTab"><h2>Daftar nama guru</h2><p class="hint">Kelola nama yang tersedia saat guru memilih mode “Guru yang mengisi”. Daftar ini terpisah dari akun login.</p><div class="row"><div><label for="managedTeacherName">Nama guru baru</label><input id="managedTeacherName" maxlength="120" placeholder="Nama lengkap guru"></div><button id="addManagedTeacherName">Tambah nama guru</button></div><div id="teacherNamesMsg" class="status"></div><div class="tablewrap" id="teacherNamesTable"></div></div>
+<section id="homePage" class="digital-home">
+  <div class="home-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">RUANG REFLEKSI DIGITAL</p>
+      <h1>Halo, <span>Siswa!</span></h1>
+      <p class="hero-lead">Yuk, tulis refleksi belajar Informatika hari ini!</p>
+      <p class="hero-sub">Ceritakan pengalamanmu, hal baru yang kamu pelajari, atau ide untuk pembelajaran berikutnya.</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+      <div class="float-tile tile-code">&lt;/&gt;</div>
+      <div class="float-tile tile-bulb">✦</div>
+      <div class="float-tile tile-file">▤</div>
+      <div class="laptop-art"><div class="laptop-screen"><span>&lt;/</span><span>&gt;</span></div><div class="laptop-base"></div></div>
+      <span class="pixel pixel-a"></span><span class="pixel pixel-b"></span><span class="pixel pixel-c"></span>
+    </div>
+  </div>
+  <div class="reflection-prompts">
+    <article class="prompt-card prompt-mint"><div class="prompt-icon">▤</div><h2>Ceritakan pengalamanmu</h2><p>Apa yang kamu pelajari di kelas Informatika hari ini?</p></article>
+    <article class="prompt-card prompt-pink"><div class="prompt-icon">✦</div><h2>Apa yang kamu pelajari?</h2><p>Konsep baru, tantangan, atau hal yang menarik.</p></article>
+    <article class="prompt-card prompt-yellow"><div class="prompt-icon">•••</div><h2>Saran dan harapanmu</h2><p>Bagikan ide agar pembelajaran makin seru.</p></article>
+  </div>
+  <button type="button" class="primary home-student-button" id="homeStudentAccess"><span aria-hidden="true">✎</span> Saya Siswa — Isi Jurnal <span aria-hidden="true">›</span></button>
+  <div class="encouragement"><span class="encouragement-star">★</span><div><strong>Setiap refleksi kamu penting!</strong><p>Refleksimu membantu guru memahami perkembangan belajar kita bersama.</p></div></div>
+
+  <footer class="digital-footer"><span>Jurnal Harian Pembelajaran Informatika · Kelas 7, 8, 9</span><strong>&lt;/&gt; Berpikir · Berkarya · Berbagi</strong></footer>
+</section>
+<section id="loginPage" class="hidden digital-login">
+<div class="login-hero"><div class="login-lock">♙</div><p class="eyebrow">AREA KHUSUS GURU</p><h1>Akses Guru</h1><p class="muted">Masuk untuk mengelola jurnal pembelajaran Informatika.</p><div class="login-tech-art" aria-hidden="true"><span>&lt;/&gt;</span><i></i><b></b></div></div>
+<div class="panel login-panel"><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required><label for="password">Kata sandi</label><input id="password" type="password" autocomplete="current-password" required><button class="primary" type="submit">Masuk</button><div id="loginMsg" class="status error" role="status"></div></form></div>
+<div class="note" style="margin-top:14px"><strong>Versi HTML pratinjau:</strong> akun dan data masih disimpan di browser ini saja. Ini belum merupakan login aman dan belum berbagi data antarperangkat. Akses siswa tanpa akun belum dapat memastikan identitas siswa; jangan gunakan untuk data sungguhan sebelum backend online dipasang.</div></section>
+<section id="studentPage" class="hidden">
+
+<div class="student-hero">
+  <div class="student-hero-badge">RUANG REFLEKSI DIGITAL</div>
+  <h1>Yuk, Ceritakan Belajarmu!</h1>
+  <p>Setiap ide dan pengalamanmu berarti. Isi refleksi setelah belajar Informatika hari ini.</p>
+  <div class="student-hero-code" aria-hidden="true">&lt;/&gt;</div>
+</div>
+<div class="student-prompt-row">
+  <div class="student-prompt prompt-green"><span>✎</span><div><strong>Pengalamanmu</strong><small>Apa yang kamu pelajari?</small></div></div>
+  <div class="student-prompt prompt-pink"><span>✦</span><div><strong>Hal menarik</strong><small>Apa yang paling kamu ingat?</small></div></div>
+  <div class="student-prompt prompt-yellow"><span>•••</span><div><strong>Saranmu</strong><small>Apa harapanmu berikutnya?</small></div></div>
+</div>
+<p class="eyebrow">AKSES SISWA</p><h1>Isi jurnal Informatika.</h1><p class="muted">Pilih kelas dan nama Anda, lalu ceritakan kegiatan belajar hari ini. Yuk, dokumentasikan proses belajarmu!</p><div class="panel"><form id="studentJournalForm"><label for="studentJournalDate">Tanggal jurnal</label><input id="studentJournalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diubah jika mengisi jurnal untuk tanggal lain.</p><label for="studentClassSelect">Kelas</label><select id="studentClassSelect" required><option value="">Pilih kelas</option></select><label for="studentNameSelect">Nama siswa</label><select id="studentNameSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="studentContent">Jurnal harian</label><textarea id="studentContent" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="studentMessage" class="status" role="status"></div></form><p class="hint">Jurnal yang dikirim tidak ditampilkan kembali di halaman siswa. Admin dapat melihat semua jurnal. Pada versi online nanti, identitas dan hak akses perlu diverifikasi oleh server.</p><button type="button" class="link" id="backToLogin">Kembali ke Beranda</button></div></section>
+<section id="teacherPage" class="hidden"><p class="eyebrow">JURNAL PEMBELAJARAN</p><h1>Isi jurnal dengan mudah.</h1><p class="muted">Tampilan pengisian dibuat seperti halaman siswa. Pilih siapa yang mengisi jurnal, lalu pilih kelas dan nama siswa yang terkait.</p>  <section class="teacher-tools" aria-label="Menu guru">
+    <div class="teacher-tools-heading"><span class="teacher-tools-icon">▦</span><div><h2>Menu Pengelolaan</h2><p>Kelola rekap, data siswa, dan catatan pembelajaran.</p></div></div>
+    <div class="teacher-tools-grid">
+      <button type="button" class="teacher-tool" data-teacher-tab="recap"><span>▥</span><strong>Rekap Jurnal</strong><small>Lihat ringkasan pengisian per kelas</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="missing"><span>♧</span><strong>Status Pengisian</strong><small>Lihat siswa yang sudah dan belum mengisi jurnal</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="notes"><span>▤</span><strong>Catatan Guru</strong><small>Tambah catatan untuk siswa</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="export"><span>↓</span><strong>Ekspor Excel</strong><small>Unduh rekap jurnal per kelas</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="students"><span>♧</span><strong>Data Siswa</strong><small>Kelola nama siswa Kelas 7, 8, 9</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="accounts"><span>♙</span><strong>Kelola Guru</strong><small>Kelola akun dan nama guru</small></button>
+    </div>
+  </section>
+<div class="panel"><form id="journalForm"><label for="journalDate">Tanggal jurnal</label><input id="journalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diedit sebelum jurnal disimpan.</p><label for="classSelect">Kelas</label><select id="classSelect" required><option value="">Pilih kelas</option></select><label for="studentSelect">Nama siswa</label><select id="studentSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="content">Jurnal harian</label><textarea id="content" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="message" class="status" role="status"></div></form></div><div class="panel"><h2>Riwayat jurnal saya</h2><div id="myJournals"></div><button type="button" class="primary" id="exportTeacherExcel">Ekspor Excel jurnal saya</button><p class="hint">File Excel berisi 15 sheet kelas (7A–7E, 8A–8E, 9A–9E), dengan nama siswa pada baris dan tanggal jurnal pada kolom.</p></div></section>
+<section id="adminPage" class="hidden">
+<p class="eyebrow">PANEL ADMIN</p>
+<h1>Pengelolaan Jurnal</h1>
+<details class="admin-notice-compact">
+  <summary><strong>Informasi penggunaan</strong><span>Prototipe lokal — baca catatan</span></summary>
+  <p>Panel ini masih berupa prototipe lokal. Pembatasan akses belum aman untuk penggunaan nyata sampai dihubungkan ke backend dan database online.</p>
+</details>  <section class="teacher-tools" aria-label="Menu pengelolaan admin">
+    <div class="teacher-tools-heading"><span class="teacher-tools-icon">▦</span><div><h2>Menu Pengelolaan</h2><p>Kelola rekap, data siswa, dan catatan pembelajaran.</p></div></div>
+    <div class="teacher-tools-grid">
+      <button type="button" class="teacher-tool" data-teacher-tab="recap"><span>▥</span><strong>Rekap Jurnal</strong><small>Lihat ringkasan pengisian per kelas</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="missing"><span>♧</span><strong>Status Pengisian</strong><small>Lihat siswa yang sudah dan belum mengisi jurnal</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="notes"><span>▤</span><strong>Catatan Guru</strong><small>Tambah catatan untuk siswa</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="students"><span>♧</span><strong>Data Siswa</strong><small>Kelola nama siswa Kelas 7, 8, 9</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="accounts"><span>♙</span><strong>Kelola Guru</strong><small>Kelola akun dan nama guru</small></button>
+      <button type="button" class="teacher-tool" data-teacher-tab="export"><span>↓</span><strong>Ekspor Excel</strong><small>Unduh rekap jurnal per kelas</small></button>
+    </div>
+  </section>
+<!-- Navigasi tab kedua dihapus sesuai permintaan; menu kartu di atas tetap digunakan. -->
+<div class="panel" id="accountsTab"><h2>Akun Guru</h2><div class="row"><div><label for="newTeacherName">Nama guru</label><input id="newTeacherName" placeholder="Nama lengkap guru"></div><div><label for="newUsername">Username</label><input id="newUsername" placeholder="username"></div></div><label for="newPassword">Kata sandi sementara</label><input id="newPassword" type="password" placeholder="Minimal 6 karakter"><button class="primary" id="addTeacher">Buat akun guru</button><div id="accountMsg" class="status"></div><div id="accountTable" class="tablewrap"></div>
+<div class="teacher-name-inline" style="border-top:1px solid #e1ebfa;margin-top:22px;padding-top:18px"><h2>Daftar nama guru</h2><p class="hint">Kelola nama yang tersedia saat guru memilih mode “Guru yang mengisi”. Daftar ini terpisah dari akun login.</p><div class="row"><div><label for="managedTeacherName">Nama guru baru</label><input id="managedTeacherName" maxlength="120" placeholder="Nama lengkap guru"></div><button id="addManagedTeacherName">Tambah nama guru</button></div><div id="teacherNamesMsg" class="status"></div><div class="tablewrap" id="teacherNamesTable"></div></div>
+</div>
+
+<div class="panel hidden" id="teacherNotesTab">
+<h2>Catatan tambahan guru</h2>
+<p class="hint">Tambahkan catatan khusus untuk siswa. Catatan ini tersimpan di browser yang digunakan.</p>
+<label for="noteClass">Kelas</label><select id="noteClass"><option value="">Pilih kelas</option></select>
+<label for="noteStudent">Nama siswa</label><select id="noteStudent"><option value="">Pilih kelas terlebih dahulu</option></select>
+<label for="noteDate">Tanggal pembelajaran</label><input type="date" id="noteDate">
+<label for="noteText">Catatan guru (opsional)</label><textarea id="noteText" rows="4" placeholder="Tuliskan catatan tambahan untuk siswa..."></textarea>
+<button type="button" class="primary" id="saveTeacherNote">Simpan catatan</button>
+<div id="noteStatus" class="status" role="status"></div>
+<div class="tablewrap" id="teacherNotesList"></div>
+</div>
 <div class="panel hidden" id="studentsTab"><h2>Daftar siswa</h2><label for="adminClass">Pilih kelas</label><select id="adminClass"></select><div class="row"><div><label for="newStudent">Nama siswa baru</label><input id="newStudent" placeholder="Nama lengkap"></div><button id="addStudent">Tambah siswa</button></div><div class="tablewrap" id="studentTable"></div><p class="hint">Perubahan daftar siswa tersimpan lokal di browser ini.</p></div>
-<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><div class="panel" id="completionChecker" style="background:#f8faff;border:1px solid #dfe6fb;margin:16px 0;padding:18px">
+<div class="panel hidden" id="missingTab"><h2>Status Pengisian</h2><p class="hint">Periksa siswa yang sudah dan belum mengisi refleksi berdasarkan kelas dan tanggal pembelajaran.</p><div class="panel" id="completionChecker" style="background:#f8faff;border:1px solid #dfe6fb;margin:16px 0;padding:18px">
 <h2 style="margin-bottom:6px">Pemeriksaan pengisian harian</h2>
 <p class="hint">Pilih kelas dan tanggal untuk memeriksa data langsung dari Google Sheets.</p>
 <div class="filter-grid">
@@ -166,12 +798,15 @@ footer{margin-top:28px;border-top:1px solid #e0e8f3;text-align:center;padding-to
 </div>
 <div id="checkFilledList"></div>
 <div id="checkMissingList"></div>
-</div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Catatan: tombol ini mengekspor data yang tersedia di website ini.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
-<footer>Web Jurnal Harian Informatika · 15 kelas · 7A–7E, 8A–8E, 9A–9E.</footer></main>
+</div></div>
+<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Catatan: tombol ini mengekspor data yang tersedia di website ini.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
+<footer></footer></main>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 const ROSTER = {"7A": ["Ahmad Zaky Al Ghifari", "Akifa Alya El Himma", "Alby Kaindra Hamizan", "Alesha Naura Alfathunisa", "Alifiandra Muhamad Azwan Kanaka", "Alyssha Safa Zaffira", "Anindita Cetta Hakama", "Annisa Alma Santika", "Davina Kayyisah Ramadhani", "Devano Alexander Halomoan Pane", "Dzakira Nayla Sakhi", "Elmyra Zivara Kuncoro", "Faiha Fathin Nafla Nadifa S", "Fathan Ghani Nur Mutaqin", "Fathur Al Fahri Santoso", "Hafidza Amalia Husna", "Kamil Nataprawira", "Keanu Naufal Erlangga", "Mikhayla Azalia Zakaria", "Naufal Zhafif Hadi", "Raia Syalsabila Nairaputri", "Rezqiya Ahsan Maula", "Satria Aditya Permana", "Shanum Aghniya Sasikirana", "Taqiyya Khairunnisa", "Zhafran Zaid Athallah"], "7B": ["Abizarsyah Al Arif", "Afika Raudhatunisya Hidayat", "Akbar Caesar Nurfattah", "Akmal Zaydan Pranaja", "Daffa Ibnu Hafidz", "Dinar Rifa Hayunda", "Fabian Rizky Dharmawan", "Fathiya Zalfa Adzkia", "Fhyolla Aretha Kiran", "Gendis Embun Pagi", "Jihan Balqis Ufaira", "Kaisha Azzahra Wijayadi", "Karissa Hasna Wizaputri", "Latisha Widhi Maulida", "Muhammad Assaidi Ibrahim", "Muhammad Fadhil Khairi", "Muhammad Fariz Shakeel Umari", "Nata Ismail Adiwangsa", "Naufal Alkhalifi", "Naufal Alvaro Putra W", "Nazhirul Zhafran Abdillah", "Pargya Vinaya Aisyah", "Princessya Fathinuraisyah Lesmana", "Sheika Sabila El Mumtaza", "Yasmin Apliansyah", "Zeze Alifa Rizkia Oktaviani"], "7C": ["Al Barra Arezky Purnomo", "Alea Lakeisha Giarin", "Aqila Putri Azahra", "Azzula Ulfah Anggraeni", "Davin Arsenio Nafis Juan", "Delisha Hadzkya Resfyani", "Dzikri Hanif Nurdiansyah", "Faridz Natakusuma Ramdhani", "Hafiza Khaira Lubna", "Haura Insiyah Nazafarin", "Ichsan Nur Alif", "Kinara Raisha Shanum", "Lentera Salsabila Mulya", "Mahardika Prawira Wijaya", "Mahirah Aisyah Shafa", "Muh Daffa Assadullah Ijlal Alkamil", "Muhamad Rafka Firdaus", "Muhammad Rayyan Nur Iman", "Naufal Afkar Rais", "Rakaila Syafiq Rizal", "Rayhan Buhari Sidik", "Reni Anggriyani Aris Sandi Putri", "Saniyyah Afnan Huriyyah", "Sarah Raniatu Khadijah", "Shofwan Daffa Fauzan"], "7D": ["Afifah Zakiyah Hakim", "Aisya Naila Shafa", "Alifa Shidqia Rahmani", "Angkasa Garda Nalendra", "Aqila Anindita Apsari", "Aqilah Naura Azzalea", "Arefa Kikandrya Setiawan", "Areta Nur Assyifa Mumtaz", "Arsyil Raditya Syahreza", "Atma Ghaisan Athari N", "Bilal Raya Sulaeman Al Fatih", "Fadhel Sa Adi Zahid", "Fathur Al Ihsan Santoso", "Idlan Khairy Mirwan", "Irham Arie Putra", "Keanu Ghazali Kurniawan", "Muhammad Naufal Munif", "Qonita Fayola Maulida", "Raisha Aulia Sudrajat", "Rakean Astvat Ereta", "Ratu Ayudyamurti Kusumah", "Satria Bhadrika Putra Aprianto", "Syifa Azzkia Awandi", "Syifa Dzakira Fatimah Zahra", "Zeandra Qiara Azka", "Zhafira Khairuna Putri M"], "7E": ["Ainayya Makaila Fathiyyaturahma", "Alchika Audreeya P", "Alfian Rizqie Mutha", "Alifa Hafidza Shaqia", "Alifiandra Dzikri Supriadi", "Crystalita Aulia Achadi", "Farlan Azfar Firmansyah", "Gaizkha Pramesti Suwarga", "Hafiz An Nawawi", "Haikal Fadhilah Kamil", "Husna Nabilah Khoirunnisa", "Iftina Assyabiya Ramadhani", "Maulana Barra Al Fatih", "Muhammad Ariq Riadi Alfatih", "Muhamad D Luffy Ahza", "Muhammad Fakhri Hamonangan", "Muhammad Radhika Abiyyu Satya", "Nadzifa Khairi Bilqis Hermawan", "Nafisah", "Naufal Zaki Sopian", "Raisha Sabia Dilara", "Satria Gama Wiratama", "Shafira Khairunnisa Latifah", "Shafiya Putri Hidayat", "Syakira Khaireena Noor Syamsi", "Thalita Zahwa Rasya Putri"], "8A": ["Ahmad Fajar Nasa'i", "Aisyah Rani Ghozali", "Alika Saffa Almahdi", "Asyya Liyadini Aurum", "Fachri Ivanka Pavlyuchenko", "Fadly Muhammad Firdaus Tri Parman", "Fakhri Aldina Rizqullah", "Fatih Hamizan Ruzain", "Fawwaaz Salam Reyfanselo", "Jivan Gentza Abiyas", "Kalingga Arkha Widyanata", "Keishan Rizky Alfarizhi", "Khairana Nada Darmawan", "Khansa Afiya Surya Delliane", "Khanza Aulia Danesh", "Muhamad Almer Rayyanul Arif", "Muhamad Giri Absyar", "Muhammad Naufal Adriyaksa", "Nadha Dillenia Mukti", "Nadhifa El Hawa", "Nadhir Raqilla", "Nareswari Khansa Irawan", "Nayara Zhiva Alexandria", "Rakha sakty Ramadhan", "Satria Jingga Putra Pratama", "Zahra Salsabila"], "8B": ["Aira Nur Az-Zahra", "Alkansa Saliha Rahmadiani", "Alvaro Zain Adawi", "Arzyaa Sabiela Ramdhan", "Asmara Rizkia Aufar", "Aulia Kanaya Putri", "Azfar Bintang Fathurrachman", "Azhar Raihan Pelani", "Bianry Zubair Zizou", "Bukit Pasundan Al Hayya Rahmadita", "Bunga Dinar Mulyadi", "Ghaisan Muhammad Al Fadhil", "Greco Mizel Dekana", "Haura Shabriyah Tho'at", "Kian Rahadyan Faqih Sidiq", "Muhammad Aldridge Rizky Adiwijaya", "Muhammad Ghani Abdulah", "Muhammad Hafiz Ghailan", "Muhammad Ihsan", "Naura Nur'afiqa", "Nazhifa Khansa Syakirah", "Nizar Arkan Santana", "Radhika Aditya", "Raka Dinanta Raziq", "Rangga Aditya Kuswara", "Sasikirana Khanes Irawan", "Tsaqif Rafavian Chairi", "Zidni Nur Mughni Hermawan"], "8C": ["Aisha Alifa Ramadhani", "Alby Putra Andhika", "Ammar Hanif Abdulrohman", "Arkananta Arsanta Prasetyo", "Athaya Shania Qanitah", "Aulya Shafa Haura Rasya", "Fathan Saliq Mahabah", "Ilfa Maulidia Nur Rahma", "Janeeta Aisyah Puspa", "Jevan Al-Fariji Gustama", "Kania Nur Akmaliah", "Kiandra Anaia Putri Natawisastra", "Mandriva Aryaka Pratama", "Mazein Yusuf Shidiq", "Muhammad Azhar Kinan Alfiandi", "Muhammad Barkah Al Furqon", "Muhammad Kautsar Ar Razi", "Muhammad Nafis Nurdin", "Nafisa Irhami Jannati", "Naira Rizqi Setiawan", "Naura Zulaikha Darmawan", "Rasyid Al Khairi Aminuddin", "Sarrah Hikmatul Imany", "Septian Rizky Pratama", "Seven Suta", "Vata Kavin Mahdi Tahalla", "Zahra Nadiya Sutisna"], "8D": ["Abdullah Azzahidi Khalifi Hazwan", "Aisha Noorhafeeza", "Aldy Nugraha", "Alfhan Faiq Devandra", "Alisya Zhaffira Khoirunisa", "Alya Nur Azizah", "Ananda Feelly Herdyaman Sonjaya", "Aqeela Alma Sakhi Ridwan", "Aqila Arkan Sutendy", "Aqilla Sybil Yumna Al-Zahra", "Arbiel Ziyad Al Aufa", "Audrielle Michayla Cassabian", "Ayyash Sakha Pranaja", "Azkiya Faza Arsela", "Azzam Bayu Shafwan", "Danendra Naufal Shiddiq", "Dimas Alghifari Hirzi", "Faizurahman Tangguh Nurhuda", "Faiqa Filza Fathania", "Ghisya Najla Shidqia", "Ghiyas Alkasimmy Abdilah", "Gifta Ryandaputri", "Haula Azkia laudzina", "Iqbal Masih Satrutirani", "Naafi Aufa Asrifa", "Naufal Ibrahim Hermawan", "Naufal Nur Rahman", "Raifa Aisha Permana", "Sulaiman Zuhdi", "Tenaya Yazid Sulangkar"], "8E": ["Adelio Fathi Sadina", "Adzra Muthmainnah Adzqiya", "Ahmad Faqih Anugrah", "Alfian Rizqie Muntha Abdul Hayat", "Aqila Balqis Althofunisa", "Azra Ahshad Fuadi", "Calista Putri Edina", "Davi Ibrahim Kaihan", "Gwen Syareefa Putri", "Indy Araina Perlita", "Khatami Sahira", "Mikaila Haura Yumna", "Muhammad Bayhaqi Agustian", "Muhammad Daffa Pratama", "Muhammad Erland Pratama", "Muhammad Faisal Alfatih", "Muhammad Hisyam Laudza Abdillah", "Muhammad Kevin Ali Ashiddiq", "Muhammad Raka Aprilio Subiantoro", "Naura Azaria Defiani", "Qeis Alteziya Athallah Firdaus", "Queenira Maryam Prabowo", "Ralinesyah Bianca Purnomo", "Rayyan Zulfyansyah Sudrajat", "Reykhan Pradana Alwiyandu", "Rizkia Kaylanisa Putri", "Satria Nagara Samudera", "Tariq Yaslam Izyan", "Tazkia Mardia Putri Aprianto"], "9A": ["Abhipraya Sastra", "Aisyah Nadaa Fakhira", "Aldan Kurnia Viansyah", "Alif Maestro Dirgantara", "Altair Muhammad Valerian", "Amira Zahra Habiby", "Andrian Budi Prayoga", "Aqila Maharani Rasya", "Asyaffa Arcelia Anugerah", "Balqisya Aretha Kiran", "Bunga Alya Tri Anggraeni", "Damar Faaza Matin", "Danisha Kinanti Wicaksono", "Davonta Fadh Al Bashiit", "Fadli Naufal Ali", "Ghazi Hisyam Suprapto", "Ghea Alifia Priawan", "Itsaura Naluri Ramadhani Sutrisna", "Jesant Akbar", "Kalila Nur Aulia Sukma", "Kayyisa Elma Mazea Junaedi", "Khansa Hayyanur Labibah", "Muhamad Nur Ilham", "Muhammad Luthfi Auliyan Bahtiar", "Muhammad Razan Fadhlur Rahman", "Mutiara Dea Muthmainnah", "Nakeisha Sabrina Dzakiyah", "Nayza Ramadhani Fajrin", "Neehal Ardina Arief", "Nisryna Noorin Ardianti", "Zevita Tany Nur Rizkiya"], "9B": ["Achmad Zharfan Ar Raya", "Airis Yanuar", "Albarry Rusmawan", "Althaf Auliya", "Alvin Caniago", "Alya Putri Salsabila", "Azkiya Kamila", "Bellajannis Fathina Myeisha", "Fahmi Nurhikam", "Ferdinand Wahyu Putra Pratama", "Ghassan Altair Rakhman Pasya", "Haidar Riza", "Hanif Muslim Ibrahim", "Hauraninda Nafeeza Mardiansyah", "Ishaura Setiono Bintang", "Jelita Delianda", "Kanaka Radea Al Fhad", "Kanaya Nitisara Fitri", "Mohammad Fahrel Reizky Kasim", "Muhamad Nizam Hendriansyah", "Muhammad Dippo Alvaro", "Muhammad Zain Al Fatah", "Naura Shafa Kamila", "Rakha Raffasya Putra Pratama", "Shakira Putri Nooradiatama", "Shofiya Sayyida Lathifa", "Tasya Nur Syifa", "Tisya Divia Riantycovva", "Zaahira Firdha Nafisah", "Zahra Salsabila", "Zahratul Jannah"], "9C": ["Aiman Tsaqib Rahman", "Alisya Zaahirah Nurjaman", "Alya Asyifatunnisa", "Andeano Zakari", "Audy Khanza Fricilla Rachmadi", "Barly Al-Farizky Wiguna", "Barqilhadi As-Sidqi", "Cahaya Ramadhani Darmawan", "Carissa Aqila Putri", "Cinta Felicya Audris", "Darrell Radithya Athaya", "Deva Nadya Qaisara", "Fairuz Bian Nugraha", "Fakhri Khairy Nizam", "Fydella Husna Faiza", "Hana Alfiyyah Mumtaz", "Ilyassa Nafasadha Mulya", "Khalfan Aqeela Yudantia", "Luthfi Zaidaan Hisyam", "Muhammad Fadhil Arloncy Umari", "Muhammad Fattah Ananda Kezia", "Naazira Queenza Zalika", "Qeisya Nayla Firdaus", "Radhika Sakti Prawira", "Raihana Diranita Putri Ramadhani", "Raisya Zalfaa Shoofia", "Siti Dzakia Candrasmurti", "Sultan Arjuna Hardiansyah", "Zahra Putri Auliya", "Zakiyya Kaudina Taghsya", "Zalfa Zahira Althafunnisa"], "9D": ["Alena Putri Kayra Kusnadi", "Alisha Dheya Zhafira", "Azkayra Mahya Ayskaa Akbar", "Azkya Tifany Sugiharto", "Callista Ferliana Putri", "Dzakiyah Rahmania", "Faiz Ikhsan Hawari", "Gasanipa", "Kanz Alfaeyza Abdilah", "Keanu Ammar As-Shidqi", "Leyland El Nathan", "Liani Putri Fadillah", "Maheza Brillian Wirasana Handoko", "Maia Intan Pratiwi", "Malca Iniko Hambali", "Mikaela Beladien Lesmana Lumban Tobing", "Mikail Aqila Ziggy Ramadhan", "Muhammad Afif Fazrullah", "Muhammad Ikhsan Pratama", "Muhammad Rockey Azzamy Fauziy", "Najwa Lydia Devitha", "Putri Nur Intan Firdaus", "Qaitsar Praba Aldebaran", "Rafi Albiansyah Fikri", "Raiya Athifa Kirana Riyadi", "Razni Adzra Alanza", "Rizal Syaeful Ramadhan", "Rizky Gumilar", "Shakira Rahma Agatha Lukman", "Tsabita El Nadhira"], "9E": ["Abiyyu Nashih Ulwan", "Adiva Quaneisha Sandi", "Afiqah Firmansyah", "Alika Nur Azkya Ginanjar", "Alma' Hanania Fildzah", "Aqeela Safwa Fakhira", "Ayman Azzamy Fathur Rahman", "Azalea Aisha Sunandar", "Az-Zahra Saqila Rosada", "Bati Bagja Dinnara", "Daffa Ariq Arkana", "Dewa Restu Arsy", "Fadiel Pramudya Gunawan", "Fatimah Atqiya Amala", "Girald Faiz Salman Adam", "Haura Hasna Azizah", "Ikhwan Faidzin Afinka", "Jihan Naqaputri Sukma", "Kanza Paramitha Kusnadi", "Miftah Keisha Trihadian", "Muhammad Ihwal Farid Zaidin", "Musyaffa Abdurahman Atharriq", "Nesya Ghassani Aqilah", "Qotrunnada Sahda Arraziq", "Raffa Haninditya Pratama", "Raffasya Atharoyan Firmansyah", "Shendi Noviani Zahra", "Syahreza Maulana Malik Ibrahim", "Zara Nabilla Ramadhania", "Zyaneta Edelweis Athallah"]};
-const KEY='jurnalInformatikaAccountsDemoV2';const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const classes=Object.keys(ROSTER).sort();
+const KEY='jurnalInformatikaAccountsDemoV2';
+const SESSION_KEY = 'jurnalInformatikaSessionV1';
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const classes=Object.keys(ROSTER).sort();
 function initial(){return {roster:structuredClone(ROSTER),accounts:[{username:'admin',name:'Admin Utama',password:'Admin123!',role:'admin',active:true}],teacherNames:[],journals:[]}}
 function load(){
   let d;
@@ -185,9 +820,61 @@ function load(){
   return d
 }
 let data=load(),current=null;
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}function dateKey(){let d=new Date();return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}function show(id){['loginPage','teacherPage','adminPage','studentPage'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}function dateKey(){let d=new Date();return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
+function saveSession(user){try{if(user){localStorage.setItem(SESSION_KEY,JSON.stringify({username:user.username,role:user.role,name:user.name||user.username}));}else{localStorage.removeItem(SESSION_KEY);}}catch(e){}}
+function restoreSession(){try{const saved=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');if(!saved||!saved.username||!saved.role)return false;const found=data.accounts.find(u=>u.username===saved.username&&u.role===saved.role&&u.active!==false);if(found){current=found;
+saveSession(current);$('#who').textContent=found.name||found.username;$('#logout').classList.remove('hidden');show(found.role==='admin'?'adminPage':'teacherPage');return true;}localStorage.removeItem(SESSION_KEY);}catch(e){}return false;}
+function show(id){['homePage','loginPage','teacherPage','adminPage','studentPage'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id));$('#homeTab')?.classList.toggle('active',id==='homePage'||id==='studentPage');$('#teacherAccessTab')?.classList.toggle('active',id==='loginPage'||id==='teacherPage'||id==='adminPage')}
+
+$('#homeTab').addEventListener('click',()=>{show('homePage')});
+$('#teacherAccessTab').addEventListener('click',()=>{if(current){show(current.role==='admin'?'adminPage':'teacherPage')}else{show('loginPage')}});
+$('#homeStudentAccess').addEventListener('click',()=>{show('studentPage');$('#who').textContent='Akses Siswa';$('#logout').classList.add('hidden');if(!$('#studentJournalDate').value)$('#studentJournalDate').value=dateKey()});
+
+document.querySelectorAll('#homeTeacherAccess').forEach(btn=>btn.addEventListener('click',()=>{if(!current)$('#teacherAccessTab').click();else if(current.role==='admin')show('adminPage');else show('teacherPage')}));
+
+
+
+function ensureAdminPanels(){
+  const ids=['accountsTab','teacherNotesTab','studentsTab','missingTab','journalsTab'];
+  const active=document.querySelector('#adminPage [data-tab].active')?.dataset.tab;
+  const chosen=ids.includes(active)?active:'accountsTab';
+  ids.forEach(pid=>{const el=document.getElementById(pid);if(el)el.classList.toggle('hidden',pid!==chosen);});
+}
+
+function openAdminPanel(id){
+  const ids=['accountsTab','teacherNotesTab','studentsTab','missingTab','journalsTab'];
+  ids.forEach(pid=>{
+    const panel=document.getElementById(pid);
+    if(panel) panel.classList.toggle('hidden',pid!==id);
+  });
+  document.querySelectorAll('#adminPage [data-tab]').forEach(b=>b.addEventListener('click',()=>openAdminPanel(b.dataset.tab)));
+}
+
+document.querySelectorAll('[data-teacher-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  if(!current){$('#teacherAccessTab').click();return;}
+  const target=btn.dataset.teacherTab;
+  const tabMap={accounts:'accountsTab',notes:'teacherNotesTab',students:'studentsTab',recap:'journalsTab',missing:'missingTab'};
+  if(target==='export'){
+    const exportBtn=document.getElementById('exportAdminExcel')||document.getElementById('exportExcel')||document.getElementById('exportTeacherExcel');
+    if(exportBtn){exportBtn.click();return;}
+    const exportSection=document.getElementById('journalsTab');
+    if(exportSection){openAdminPanel('journalsTab');exportSection.scrollIntoView({behavior:'smooth',block:'start'});}
+    return;
+  }
+  const panel=tabMap[target];
+  if(panel) openAdminPanel(panel);
+  if(target==='notes' && typeof initTeacherNotes==='function') initTeacherNotes();
+  if(target==='missing'){
+    const checker=document.getElementById('completionChecker');
+    if(checker) checker.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  const targetPanel=document.getElementById(panel);
+  if(targetPanel) targetPanel.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+
+if(!restoreSession())show('homePage');
 $('#journalDate').value=dateKey();$('#studentJournalDate').value=dateKey();
-$('#studentAccess').addEventListener('click',()=>{show('studentPage');$('#who').textContent='Akses Siswa';$('#logout').classList.add('hidden')});$('#backToLogin').addEventListener('click',()=>{show('loginPage');$('#who').textContent='';$('#studentJournalForm').reset();$('#studentNameSelect').innerHTML='<option value="">Pilih kelas terlebih dahulu</option>';$('#studentNameSelect').disabled=true});
+$('#backToLogin').addEventListener('click',()=>{show('homePage');$('#who').textContent='';$('#studentJournalForm').reset();$('#studentNameSelect').innerHTML='<option value="">Pilih kelas terlebih dahulu</option>';$('#studentNameSelect').disabled=true});
 $('#studentClassSelect').addEventListener('change',()=>{const c=$('#studentClassSelect').value,el=$('#studentNameSelect');el.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';el.disabled=!c});
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySYKG0fPfse7TYJtUiMkAU7w5NL8d8UCEDu5fgFROrYfMBtWBHGlScQ1ZZmCR-UPX1-Q/exec';
@@ -265,8 +952,8 @@ $('#studentJournalForm').addEventListener('submit', async e => {
   }
 });
 function fillClasses(el,first=true){el.innerHTML=(first?'<option value="">Pilih kelas</option>':'')+classes.map(c=>`<option value="${c}">${c}</option>`).join('')}fillClasses($('#classSelect'));fillClasses($('#adminClass'),false);fillClasses($('#studentClassSelect'));
-$('#loginForm').addEventListener('submit',e=>{e.preventDefault();const u=$('#username').value.trim().toLowerCase(),p=$('#password').value;const a=data.accounts.find(x=>x.username.toLowerCase()===u&&x.password===p&&x.active!==false);if(!a){$('#loginMsg').textContent='Username atau kata sandi salah, atau akun tidak aktif.';return}current=a;$('#loginMsg').textContent='';$('#who').textContent=a.name;$('#logout').classList.remove('hidden');if(a.role==='admin'){show('adminPage');renderAccounts();renderTeacherNames();renderStudents();renderAllJournals()}else{show('teacherPage');$('#teacherName').textContent=a.name;renderMyJournals()}});
-$('#logout').addEventListener('click',()=>{current=null;$('#who').textContent='';$('#logout').classList.add('hidden');$('#loginForm').reset();show('loginPage')});
+$('#loginForm').addEventListener('submit',e=>{e.preventDefault();const u=$('#username').value.trim().toLowerCase(),p=$('#password').value;const a=data.accounts.find(x=>x.username.toLowerCase()===u&&x.password===p&&x.active!==false);if(!a){$('#loginMsg').textContent='Username atau kata sandi salah, atau akun tidak aktif.';return}current=a;saveSession(current);$('#loginMsg').textContent='';$('#who').textContent=a.name;$('#logout').classList.remove('hidden');if(a.role==='admin'){show('adminPage');renderAccounts();renderTeacherNames();renderStudents();renderAllJournals()}else{show('teacherPage');$('#teacherName').textContent=a.name;renderMyJournals()}});
+$('#logout').addEventListener('click',()=>{saveSession(null);current=null;current=null;$('#who').textContent='';$('#logout').classList.add('hidden');$('#loginForm').reset();show('homePage')});
 $('#classSelect').addEventListener('change',()=>{let c=$('#classSelect').value,s=$('#studentSelect');s.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';s.disabled=!c});
 $('#journalForm').addEventListener('submit',e=>{e.preventDefault();if(!current||current.role!=='teacher')return;const cls=$('#classSelect').value,name=$('#studentSelect').value,content=$('#content').value.trim(),journalDate=$('#journalDate').value;if(!cls||!name||!content||!journalDate)return;data.journals.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),owner:current.username,teacherName:current.name,entryType:'teacher',cls,name,content,date:journalDate,updatedAt:new Date().toISOString()});save();$('#message').textContent='Jurnal berhasil disimpan di browser ini. Riwayat Anda diperbarui.';$('#message').className='status success';$('#content').value='';$('#journalDate').value=dateKey();renderMyJournals()});
 function journalTable(arr,admin=false){if(!arr.length)return '<p class="hint">Belum ada jurnal.</p>';return `<div class="tablewrap"><table><thead><tr>${admin?'<th>Pengisi</th><th>Jenis</th>':''}<th>Tanggal</th><th>Kelas</th><th>Nama siswa</th><th>Jurnal</th></tr></thead><tbody>${arr.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(j=>`<tr>${admin?`<td>${esc(j.entryType==='student'?j.name:(j.teacherName||j.owner||''))}</td><td>${j.entryType==='student'?'Siswa':'Guru'}</td>`:''}<td>${esc(j.date)}</td><td>${esc(j.cls)}</td><td>${esc(j.name)}</td><td>${esc(j.content)}</td></tr>`).join('')}</tbody></table></div>`}
@@ -277,7 +964,7 @@ function renderAllJournals(){if(current?.role!=='admin')return;setupJournalFilte
 function exportExcel(scope){if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;if(typeof XLSX==='undefined'){alert('Fitur Excel membutuhkan koneksi internet saat membuka halaman. Muat ulang halaman dengan internet aktif, lalu coba lagi.');return}const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();const wb=XLSX.utils.book_new();classes.forEach(cls=>{const dates=[...new Set(records.filter(j=>j.cls===cls).map(j=>j.date).filter(Boolean))].sort();const rows=[['Nama siswa',...dates]];const roster=[...(data.roster[cls]||[])];records.filter(j=>j.cls===cls).forEach(j=>{if(j.name&&!roster.includes(j.name))roster.push(j.name)});roster.sort((a,b)=>a.localeCompare(b,'id'));roster.forEach(name=>{const row=[name];dates.forEach(date=>{const matching=records.filter(j=>j.cls===cls&&j.name===name&&j.date===date);row.push(matching.map(j=>j.content).filter(Boolean).join('\n'))});rows.push(row)});const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:34},...dates.map(()=>({wch:38}))];ws['!freeze']={xSplit:1,ySplit:1};XLSX.utils.book_append_sheet(wb,ws,cls)});const today=dateKey();const filename='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';XLSX.writeFile(wb,filename)}
 $('#exportTeacherExcel').addEventListener('click',()=>exportExcel('teacher'));$('#exportAdminExcel').addEventListener('click',()=>exportExcel('admin'));
 ['journalFilterClass','journalFilterFrom','journalFilterTo','journalFilterName'].forEach(id=>$('#'+id).addEventListener(id==='journalFilterName'?'input':'change',()=>{adminJournalPage=1;renderAllJournals()}));$('#journalPrev').addEventListener('click',()=>{if(adminJournalPage>1){adminJournalPage--;renderAllJournals()}});$('#journalNext').addEventListener('click',()=>{adminJournalPage++;renderAllJournals()});
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['accountsTab','teacherNamesTab','studentsTab','journalsTab'].forEach(id=>$('#'+id).classList.toggle('hidden',id!==b.dataset.tab))}));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['accountsTab','teacherNotesTab','studentsTab','journalsTab'].forEach(id=>$('#'+id).classList.toggle('hidden',id!==b.dataset.tab))}));
 $('#addTeacher').addEventListener('click',()=>{if(current?.role!=='admin')return;const name=$('#newTeacherName').value.trim(),username=$('#newUsername').value.trim().toLowerCase(),password=$('#newPassword').value;if(!name||!username||password.length<6){$('#accountMsg').textContent='Isi nama, username, dan kata sandi minimal 6 karakter.';$('#accountMsg').className='status error';return}if(!/^[a-z0-9._-]+$/.test(username)||data.accounts.some(a=>a.username.toLowerCase()===username)){ $('#accountMsg').textContent='Username tidak valid atau sudah digunakan.';$('#accountMsg').className='status error';return}data.accounts.push({name,username,password,role:'teacher',active:true});if(!data.teacherNames.includes(name))data.teacherNames.push(name);save();$('#newTeacherName').value='';$('#newUsername').value='';$('#newPassword').value='';$('#accountMsg').textContent='Akun guru ditambahkan (prototipe lokal).';$('#accountMsg').className='status success';renderAccounts()});
 function renderAccounts(){if(current?.role!=='admin')return;const arr=data.accounts.filter(a=>a.role==='teacher');$('#accountTable').innerHTML=arr.length?`<table><thead><tr><th>Nama guru</th><th>Username</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.username)}</td><td>${a.active?'Aktif':'Nonaktif'}</td><td><button class="tab" data-edit="${esc(a.username)}">Ubah nama</button> <button class="tab" data-toggle="${esc(a.username)}">${a.active?'Nonaktifkan':'Aktifkan'}</button> <button class="tab" data-reset="${esc(a.username)}">Reset sandi</button></td></tr>`).join('')}</tbody></table>`:'<p class="hint">Belum ada akun guru. Tambahkan akun melalui formulir di atas.</p>';$('#accountTable').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const a=data.accounts.find(x=>x.username===b.dataset.edit),n=prompt('Nama guru:',a.name);if(n?.trim()){const old=a.name;a.name=n.trim();data.teacherNames=data.teacherNames.map(x=>x===old?a.name:x);if(!data.teacherNames.includes(a.name))data.teacherNames.push(a.name);save();renderAccounts();renderTeacherNames()}});$('#accountTable').querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const a=data.accounts.find(x=>x.username===b.dataset.toggle);a.active=!a.active;save();renderAccounts()});$('#accountTable').querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{const a=data.accounts.find(x=>x.username===b.dataset.reset),p=prompt('Kata sandi baru (minimal 6 karakter):');if(p&&p.length>=6){a.password=p;save();alert('Kata sandi demo diubah. Berikan secara aman kepada guru terkait.')}})}
 
@@ -286,4 +973,34 @@ function renderTeacherNames(){if(current?.role!=='admin')return;const list=[...d
 
 $('#adminClass').addEventListener('change',renderStudents);$('#addStudent').addEventListener('click',()=>{if(current?.role!=='admin')return;const c=$('#adminClass').value,n=$('#newStudent').value.trim();if(!n)return alert('Masukkan nama siswa.');if(data.roster[c].some(x=>x.toLowerCase()===n.toLowerCase()))return alert('Nama sudah ada di kelas ini.');data.roster[c].push(n);save();$('#newStudent').value='';renderStudents()});
 function renderStudents(){if(current?.role!=='admin')return;const c=$('#adminClass').value,names=[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id'));$('#studentTable').innerHTML=`<table><thead><tr><th>No.</th><th>Nama siswa</th><th>Aksi</th></tr></thead><tbody>${names.map((n,i)=>`<tr><td>${i+1}</td><td>${esc(n)}</td><td><button class="tab" data-rename="${esc(n)}">Ubah</button> <button class="tab" data-remove="${esc(n)}">Hapus</button></td></tr>`).join('')}</tbody></table><p class="hint">${names.length} siswa · ${c}</p>`;$('#studentTable').querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{const old=b.dataset.rename,n=prompt('Nama baru:',old);if(!n?.trim())return;data.roster[c]=data.roster[c].map(x=>x===old?n.trim():x);save();renderStudents()});$('#studentTable').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{const n=b.dataset.remove;if(confirm('Hapus '+n+' dari daftar? Riwayat lama tidak ikut dihapus.')){data.roster[c]=data.roster[c].filter(x=>x!==n);save();renderStudents()}})}
+
+
+if(!Array.isArray(data.teacherNotes)) data.teacherNotes=[];
+function initTeacherNotes(){
+ const cls=$('#noteClass'), stu=$('#noteStudent');
+ if(cls&&cls.options.length<=1) classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;cls.appendChild(o)});
+ if($('#noteDate')&&!$('#noteDate').value) $('#noteDate').value=dateKey();
+ renderTeacherNotes();
+}
+function updateNoteStudentOptions(){
+ const cls=$('#noteClass'),stu=$('#noteStudent');if(!cls||!stu)return;
+ const names=(data.roster[cls.value]||ROSTER[cls.value]||[]);
+ stu.innerHTML='<option value="">Pilih nama siswa</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+ renderTeacherNotes();
+}
+function renderTeacherNotes(){
+ const el=$('#teacherNotesList');if(!el)return;
+ const cls=$('#noteClass')?.value||'',name=$('#noteStudent')?.value||'';
+ const rows=data.teacherNotes.filter(n=>(!cls||n.cls===cls)&&(!name||n.name===name)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ el.innerHTML=rows.length?'<table><thead><tr><th>Tanggal</th><th>Kelas</th><th>Nama siswa</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody>'+rows.map(n=>'<tr><td>'+esc(n.date)+'</td><td>'+esc(n.cls)+'</td><td>'+esc(n.name)+'</td><td>'+esc(n.text)+'</td><td><button type="button" class="tab" data-note-delete="'+n.id+'">Hapus</button></td></tr>').join('')+'</tbody></table>':'<p class="hint" style="padding:12px">Belum ada catatan untuk pilihan ini.</p>';
+ el.querySelectorAll('[data-note-delete]').forEach(b=>b.onclick=()=>{if(confirm('Hapus catatan ini?')){data.teacherNotes=data.teacherNotes.filter(n=>String(n.id)!==b.dataset.noteDelete);save();renderTeacherNotes()}});
+}
+$('#noteClass')?.addEventListener('change',updateNoteStudentOptions);
+$('#noteStudent')?.addEventListener('change',renderTeacherNotes);
+$('#saveTeacherNote')?.addEventListener('click',()=>{
+ const cls=$('#noteClass').value,name=$('#noteStudent').value,date=$('#noteDate').value,textValue=$('#noteText').value.trim();
+ if(!cls||!name||!date||!textValue){$('#noteStatus').textContent='Lengkapi kelas, nama siswa, tanggal, dan catatan.';$('#noteStatus').className='status error';return}
+ data.teacherNotes.push({id:Date.now(),cls,name,date,text:textValue,author:current?.name||current?.username||'Guru'});save();
+ $('#noteText').value='';$('#noteStatus').textContent='Catatan tersimpan di browser ini.';$('#noteStatus').className='status success';renderTeacherNotes();
+});
 </script></body></html>
