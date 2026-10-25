@@ -165,7 +165,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}function dateKey(
 $('#journalDate').value=dateKey();$('#studentJournalDate').value=dateKey();
 $('#studentAccess').addEventListener('click',()=>{show('studentPage');$('#who').textContent='Akses Siswa';$('#logout').classList.add('hidden')});$('#backToLogin').addEventListener('click',()=>{show('loginPage');$('#who').textContent='';$('#studentJournalForm').reset();$('#studentNameSelect').innerHTML='<option value="">Pilih kelas terlebih dahulu</option>';$('#studentNameSelect').disabled=true});
 $('#studentClassSelect').addEventListener('change',()=>{const c=$('#studentClassSelect').value,el=$('#studentNameSelect');el.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';el.disabled=!c});
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmRm4yIW8p7MXEolA2h3vkX54H8GxiT3zf283ikBPgbEk4CQ7U5s-yvLk3kHf6y5KOvA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7OGDrpHaePKRGuGLoETG8kBSPoWlhRtIbz_UL06xzTlu0K5dZMEdQllsFJIasBHTRTQ/exec';
 
 $('#studentJournalForm').addEventListener('submit', async e => {
   e.preventDefault();
