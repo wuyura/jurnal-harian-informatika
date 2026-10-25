@@ -5,6 +5,12 @@
 
 .journal-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 18px}.summary-card{padding:15px;border:1px solid #e2e8f5;border-radius:13px;background:#f7f8ff;display:flex;flex-direction:column;gap:3px}.summary-card span{font-size:.85rem;color:#536486;font-weight:700}.summary-card strong{font-size:1.7rem;line-height:1.2;color:#25385f}.summary-card small{font-size:.78rem;color:#6b7893}.filter-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;margin:10px 0}.pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}.pagination .tab:disabled{opacity:.4;cursor:not-allowed}#journalResultsInfo{margin:12px 0 4px}@media(max-width:560px){.journal-summary,.filter-grid{grid-template-columns:1fr}.pagination{flex-wrap:wrap}}
 
+#checkFilledList,#checkMissingList{margin-top:14px}
+.check-list{padding:13px 15px;border:1px solid #e2e8f5;border-radius:12px;background:#fff;margin:12px 0}
+.check-list h3{font-size:1rem;margin:0 0 9px}
+.check-list ul{margin:0;padding-left:22px}
+.check-list li{padding:3px 0}
+.reflection{color:#526078;margin-top:4px;white-space:pre-wrap}
 </style>
 <style id="dynamic-redesign">
 :root{
@@ -145,7 +151,22 @@ footer{margin-top:28px;border-top:1px solid #e0e8f3;text-align:center;padding-to
 <div class="panel" id="accountsTab"><h2>Tambah akun guru</h2><div class="row"><div><label for="newTeacherName">Nama guru</label><input id="newTeacherName" placeholder="Nama lengkap guru"></div><div><label for="newUsername">Username</label><input id="newUsername" placeholder="username"></div></div><label for="newPassword">Kata sandi sementara</label><input id="newPassword" type="password" placeholder="Minimal 6 karakter"><button class="primary" id="addTeacher">Buat akun guru</button><div id="accountMsg" class="status"></div><div id="accountTable" class="tablewrap"></div></div>
 <div class="panel hidden" id="teacherNamesTab"><h2>Daftar nama guru</h2><p class="hint">Kelola nama yang tersedia saat guru memilih mode “Guru yang mengisi”. Daftar ini terpisah dari akun login.</p><div class="row"><div><label for="managedTeacherName">Nama guru baru</label><input id="managedTeacherName" maxlength="120" placeholder="Nama lengkap guru"></div><button id="addManagedTeacherName">Tambah nama guru</button></div><div id="teacherNamesMsg" class="status"></div><div class="tablewrap" id="teacherNamesTable"></div></div>
 <div class="panel hidden" id="studentsTab"><h2>Daftar siswa</h2><label for="adminClass">Pilih kelas</label><select id="adminClass"></select><div class="row"><div><label for="newStudent">Nama siswa baru</label><input id="newStudent" placeholder="Nama lengkap"></div><button id="addStudent">Tambah siswa</button></div><div class="tablewrap" id="studentTable"></div><p class="hint">Perubahan daftar siswa tersimpan lokal di browser ini.</p></div>
-<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Catatan: tombol ini mengekspor data yang tersedia di website ini.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
+<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><div class="panel" id="completionChecker" style="background:#f8faff;border:1px solid #dfe6fb;margin:16px 0;padding:18px">
+<h2 style="margin-bottom:6px">Pemeriksaan pengisian harian</h2>
+<p class="hint">Pilih kelas dan tanggal untuk memeriksa data langsung dari Google Sheets.</p>
+<div class="filter-grid">
+<div><label for="checkClass">Kelas</label><select id="checkClass"><option value="">Pilih kelas</option></select></div>
+<div><label for="checkDate">Tanggal</label><input type="date" id="checkDate"></div>
+</div>
+<button type="button" class="primary" id="runCompletionCheck">Periksa jurnal</button>
+<div id="checkStatus" class="status" aria-live="polite"></div>
+<div id="checkSummary" class="journal-summary hidden">
+<div class="summary-card"><span>Sudah diisi</span><strong id="checkFilledCount">0</strong><small id="checkFilledLabel">siswa</small></div>
+<div class="summary-card"><span>Belum diisi</span><strong id="checkMissingCount">0</strong><small id="checkMissingLabel">siswa</small></div>
+</div>
+<div id="checkFilledList"></div>
+<div id="checkMissingList"></div>
+</div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Catatan: tombol ini mengekspor data yang tersedia di website ini.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
 <footer>Web Jurnal Harian Informatika · 15 kelas · 7A–7E, 8A–8E, 9A–9E.</footer></main>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
@@ -168,7 +189,41 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}function dateKey(
 $('#journalDate').value=dateKey();$('#studentJournalDate').value=dateKey();
 $('#studentAccess').addEventListener('click',()=>{show('studentPage');$('#who').textContent='Akses Siswa';$('#logout').classList.add('hidden')});$('#backToLogin').addEventListener('click',()=>{show('loginPage');$('#who').textContent='';$('#studentJournalForm').reset();$('#studentNameSelect').innerHTML='<option value="">Pilih kelas terlebih dahulu</option>';$('#studentNameSelect').disabled=true});
 $('#studentClassSelect').addEventListener('change',()=>{const c=$('#studentClassSelect').value,el=$('#studentNameSelect');el.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';el.disabled=!c});
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7OGDrpHaePKRGuGLoETG8kBSPoWlhRtIbz_UL06xzTlu0K5dZMEdQllsFJIasBHTRTQ/exec';
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySYKG0fPfse7TYJtUiMkAU7w5NL8d8UCEDu5fgFROrYfMBtWBHGlScQ1ZZmCR-UPX1-Q/exec';
+function setupCompletionChecker(){
+  const sel=$('#checkClass');
+  if(sel && sel.options.length===1) classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;sel.appendChild(o)});
+  if($('#checkDate')&&!$('#checkDate').value) $('#checkDate').value=dateKey();
+}
+function runCompletionCheck(){
+  const kelas=$('#checkClass').value, tanggal=$('#checkDate').value, status=$('#checkStatus');
+  if(!kelas||!tanggal){status.textContent='Pilih kelas dan tanggal terlebih dahulu.';status.className='status error';return}
+  const btn=$('#runCompletionCheck');btn.disabled=true;status.textContent='Sedang membaca Google Sheets...';status.className='status';
+  $('#checkSummary').classList.add('hidden');$('#checkFilledList').innerHTML='';$('#checkMissingList').innerHTML='';
+  const callback='jurnalCheck_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const script=document.createElement('script');let finished=false;
+  const cleanup=()=>{if(finished)return;finished=true;btn.disabled=false;try{delete window[callback]}catch(e){window[callback]=undefined}if(script.parentNode)script.parentNode.removeChild(script)};
+  const timeout=setTimeout(()=>{if(finished)return;cleanup();status.textContent='Pemeriksaan tidak mendapat balasan. Pastikan deployment dapat diakses oleh siapa saja yang memiliki link, lalu coba lagi.';status.className='status error'},20000);
+  window[callback]=(result)=>{
+    clearTimeout(timeout);cleanup();
+    if(!result||!result.success){status.textContent=(result&&result.message)||'Pemeriksaan gagal.';status.className='status error';return}
+    const filled=Array.isArray(result.filled)?result.filled:[], missing=Array.isArray(result.missing)?result.missing:[];
+    status.textContent='Pemeriksaan selesai · Kelas '+result.kelas+' · '+result.tanggal;status.className='status success';
+    $('#checkFilledCount').textContent=filled.length.toLocaleString('id-ID');
+    $('#checkMissingCount').textContent=missing.length.toLocaleString('id-ID');
+    $('#checkFilledLabel').textContent='Sudah diisi '+filled.length+' siswa';
+    $('#checkMissingLabel').textContent='Belum diisi '+missing.length+' siswa';
+    $('#checkSummary').classList.remove('hidden');
+    $('#checkFilledList').innerHTML='<div class="check-list"><h3>Jurnal yang sudah diisi ('+filled.length+')</h3>'+(filled.length?'<ul>'+filled.map(x=>'<li><strong>'+esc(x.nama)+'</strong><div class="reflection">'+esc(x.refleksi)+'</div></li>').join('')+'</ul>':'<p class="hint">Belum ada siswa yang mengisi pada tanggal ini.</p>')+'</div>';
+    $('#checkMissingList').innerHTML='<div class="check-list"><h3>Belum mengisi ('+missing.length+')</h3>'+(missing.length?'<ul>'+missing.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'<p class="hint">Semua siswa sudah mengisi.</p>')+'</div>';
+  };
+  script.onerror=()=>{clearTimeout(timeout);cleanup();status.textContent='Tidak dapat menghubungi Apps Script. Periksa URL deployment dan izin akses web app.';status.className='status error'};
+  script.src=APPS_SCRIPT_URL+'?action=check&kelas='+encodeURIComponent(kelas)+'&tanggal='+encodeURIComponent(tanggal)+'&callback='+encodeURIComponent(callback);
+  document.body.appendChild(script);
+}
+$('#runCompletionCheck').addEventListener('click',runCompletionCheck);
+
 
 $('#studentJournalForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -218,7 +273,7 @@ function journalTable(arr,admin=false){if(!arr.length)return '<p class="hint">Be
 function renderMyJournals(){if(!current)return;$('#myJournals').innerHTML=journalTable(data.journals.filter(j=>j.owner===current.username))}
 let adminJournalPage=1;const ADMIN_JOURNAL_PAGE_SIZE=20;
 function setupJournalFilters(){const sel=$('#journalFilterClass');if(sel&&sel.options.length===1)classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;sel.appendChild(o)});}
-function renderAllJournals(){if(current?.role!=='admin')return;setupJournalFilters();const all=data.journals.slice();$('#journalTotal').textContent=all.length.toLocaleString('id-ID');const cls=$('#journalFilterClass').value,from=$('#journalFilterFrom').value,to=$('#journalFilterTo').value,name=$('#journalFilterName').value.trim().toLocaleLowerCase('id');const filtered=all.filter(j=>(!cls||j.cls===cls)&&(!from||j.date>=from)&&(!to||j.date<=to)&&(!name||String(j.name||'').toLocaleLowerCase('id').includes(name))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||String(a.name||'').localeCompare(String(b.name||''),'id'));const pages=Math.max(1,Math.ceil(filtered.length/ADMIN_JOURNAL_PAGE_SIZE));adminJournalPage=Math.min(adminJournalPage,pages);const shown=filtered.slice((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE,adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE);$('#journalResultsInfo').textContent=filtered.length?`Menampilkan ${((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE)+1}–${Math.min(adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE,filtered.length)} dari ${filtered.length} catatan sesuai filter.`:'Tidak ada jurnal yang sesuai dengan filter.';$('#allJournals').innerHTML=journalTable(shown,true);$('#journalPageInfo').textContent=`Halaman ${adminJournalPage} dari ${pages}`;$('#journalPrev').disabled=adminJournalPage<=1;$('#journalNext').disabled=adminJournalPage>=pages;}
+function renderAllJournals(){if(current?.role!=='admin')return;setupJournalFilters();setupCompletionChecker();const all=data.journals.slice();$('#journalTotal').textContent=all.length.toLocaleString('id-ID');const cls=$('#journalFilterClass').value,from=$('#journalFilterFrom').value,to=$('#journalFilterTo').value,name=$('#journalFilterName').value.trim().toLocaleLowerCase('id');const filtered=all.filter(j=>(!cls||j.cls===cls)&&(!from||j.date>=from)&&(!to||j.date<=to)&&(!name||String(j.name||'').toLocaleLowerCase('id').includes(name))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||String(a.name||'').localeCompare(String(b.name||''),'id'));const pages=Math.max(1,Math.ceil(filtered.length/ADMIN_JOURNAL_PAGE_SIZE));adminJournalPage=Math.min(adminJournalPage,pages);const shown=filtered.slice((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE,adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE);$('#journalResultsInfo').textContent=filtered.length?`Menampilkan ${((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE)+1}–${Math.min(adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE,filtered.length)} dari ${filtered.length} catatan sesuai filter.`:'Tidak ada jurnal yang sesuai dengan filter.';$('#allJournals').innerHTML=journalTable(shown,true);$('#journalPageInfo').textContent=`Halaman ${adminJournalPage} dari ${pages}`;$('#journalPrev').disabled=adminJournalPage<=1;$('#journalNext').disabled=adminJournalPage>=pages;}
 function exportExcel(scope){if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;if(typeof XLSX==='undefined'){alert('Fitur Excel membutuhkan koneksi internet saat membuka halaman. Muat ulang halaman dengan internet aktif, lalu coba lagi.');return}const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();const wb=XLSX.utils.book_new();classes.forEach(cls=>{const dates=[...new Set(records.filter(j=>j.cls===cls).map(j=>j.date).filter(Boolean))].sort();const rows=[['Nama siswa',...dates]];const roster=[...(data.roster[cls]||[])];records.filter(j=>j.cls===cls).forEach(j=>{if(j.name&&!roster.includes(j.name))roster.push(j.name)});roster.sort((a,b)=>a.localeCompare(b,'id'));roster.forEach(name=>{const row=[name];dates.forEach(date=>{const matching=records.filter(j=>j.cls===cls&&j.name===name&&j.date===date);row.push(matching.map(j=>j.content).filter(Boolean).join('\n'))});rows.push(row)});const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:34},...dates.map(()=>({wch:38}))];ws['!freeze']={xSplit:1,ySplit:1};XLSX.utils.book_append_sheet(wb,ws,cls)});const today=dateKey();const filename='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';XLSX.writeFile(wb,filename)}
 $('#exportTeacherExcel').addEventListener('click',()=>exportExcel('teacher'));$('#exportAdminExcel').addEventListener('click',()=>exportExcel('admin'));
 ['journalFilterClass','journalFilterFrom','journalFilterTo','journalFilterName'].forEach(id=>$('#'+id).addEventListener(id==='journalFilterName'?'input':'change',()=>{adminJournalPage=1;renderAllJournals()}));$('#journalPrev').addEventListener('click',()=>{if(adminJournalPage>1){adminJournalPage--;renderAllJournals()}});$('#journalNext').addEventListener('click',()=>{adminJournalPage++;renderAllJournals()});
