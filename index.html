@@ -876,7 +876,7 @@ $('#journalDate').value=dateKey();$('#studentJournalDate').value=dateKey();
 $('#backToLogin').addEventListener('click',()=>{show('homePage');$('#who').textContent='';$('#studentJournalForm').reset();$('#studentNameSelect').innerHTML='<option value="">Pilih kelas terlebih dahulu</option>';$('#studentNameSelect').disabled=true});
 $('#studentClassSelect').addEventListener('change',()=>{const c=$('#studentClassSelect').value,el=$('#studentNameSelect');el.innerHTML=c?'<option value="">Pilih nama siswa</option>'+[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id')).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(''):'<option value="">Pilih kelas terlebih dahulu</option>';el.disabled=!c});
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySYKG0fPfse7TYJtUiMkAU7w5NL8d8UCEDu5fgFROrYfMBtWBHGlScQ1ZZmCR-UPX1-Q/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGnxEAkCl6OUtm7T4mKiNeYinaLxRRw0v6KIJDFST-Kn_R6CjDVE6ji3HZJ_EwlF5XhA/exec';
 function setupCompletionChecker(){
   const sel=$('#checkClass');
   if(sel && sel.options.length===1) classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;sel.appendChild(o)});
