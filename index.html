@@ -748,7 +748,7 @@ header #who { display: none !important; }
       <button type="button" class="teacher-tool" data-teacher-tab="accounts"><span>♙</span><strong>Kelola Guru</strong><small>Kelola akun dan nama guru</small></button>
     </div>
   </section>
-<div class="panel"><form id="journalForm"><label for="journalDate">Tanggal jurnal</label><input id="journalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diedit sebelum jurnal disimpan.</p><label for="classSelect">Kelas</label><select id="classSelect" required><option value="">Pilih kelas</option></select><label for="studentSelect">Nama siswa</label><select id="studentSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="content">Jurnal harian</label><textarea id="content" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="message" class="status" role="status"></div></form></div><div class="panel"><h2>Riwayat jurnal saya</h2><div id="myJournals"></div><button type="button" class="primary" id="exportTeacherExcel">Ekspor Excel jurnal saya</button><p class="hint">File Excel berisi 15 sheet kelas (7A–7E, 8A–8E, 9A–9E), dengan nama siswa pada baris dan tanggal jurnal pada kolom.</p></div></section>
+<div class="panel"><form id="journalForm"><label for="journalDate">Tanggal jurnal</label><input id="journalDate" type="date" required><p class="hint">Tanggal otomatis mengikuti hari ini, tetapi bisa diedit sebelum jurnal disimpan.</p><label for="classSelect">Kelas</label><select id="classSelect" required><option value="">Pilih kelas</option></select><label for="studentSelect">Nama siswa</label><select id="studentSelect" required disabled><option value="">Pilih kelas terlebih dahulu</option></select><label for="content">Jurnal harian</label><textarea id="content" rows="7" maxlength="10000" required placeholder="Tuliskan kegiatan pembelajaran Informatika hari ini…"></textarea><button class="primary" type="submit">Simpan jurnal</button><div id="message" class="status" role="status"></div></form></div><div class="panel"><h2>Riwayat jurnal saya</h2><div id="myJournals"></div><button type="button" class="primary" id="exportTeacherExcel">Ekspor Excel jurnal saya</button><p class="hint">File Excel menggunakan template asli 15 sheet kelas dan mengambil data langsung dari Google Sheets.</p></div></section>
 <section id="adminPage" class="hidden">
 <p class="eyebrow">PANEL ADMIN</p>
 <h1>Pengelolaan Jurnal</h1>
@@ -794,7 +794,7 @@ header #who { display: none !important; }
 <div id="checkFilledList"></div>
 <div id="checkMissingList"></div>
 </div></div>
-<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Catatan: tombol ini mengekspor data yang tersedia di website ini.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
+<div class="panel hidden" id="journalsTab"><h2>Semua jurnal</h2><div class="journal-summary"><div class="summary-card"><span>Total catatan</span><strong id="journalTotal">0</strong><small>Catatan yang tersimpan di perangkat ini</small></div><div class="summary-card"><span>Kelas tersedia</span><strong>15</strong><small>Kelas 7A–9E</small></div></div><button type="button" class="primary" id="exportAdminExcel">Ekspor Excel semua jurnal</button><p class="hint">Satu file Excel dengan 15 sheet kelas. Data diekspor langsung dari Google Sheets menggunakan format template asli.</p><div class="filter-grid"><div><label for="journalFilterClass">Filter kelas</label><select id="journalFilterClass"><option value="">Semua kelas</option></select></div><div><label for="journalFilterFrom">Dari tanggal</label><input type="date" id="journalFilterFrom"></div><div><label for="journalFilterTo">Sampai tanggal</label><input type="date" id="journalFilterTo"></div><div><label for="journalFilterName">Cari nama siswa</label><input id="journalFilterName" type="search" placeholder="Ketik nama siswa..."></div></div><div id="journalResultsInfo" class="hint" aria-live="polite"></div><div id="allJournals"></div><div class="pagination"><button type="button" class="tab" id="journalPrev">Sebelumnya</button><span id="journalPageInfo" class="hint">Halaman 1</span><button type="button" class="tab" id="journalNext">Berikutnya</button></div></div></section>
 <footer></footer></main>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1006,6 +1006,19 @@ function exportSetInlineCell(xmlDoc, address, value){
 function exportColumnNumber(letters){
   let n=0; for(const ch of String(letters||'')) n=n*26+ch.charCodeAt(0)-64; return n;
 }
+function requestSheetsExport(){
+  return new Promise((resolve,reject)=>{
+    const callback='jurnalExport_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');
+    let finished=false;
+    const cleanup=()=>{if(finished)return;finished=true;clearTimeout(timer);try{delete window[callback]}catch(e){window[callback]=undefined}script.remove();};
+    const timer=setTimeout(()=>{cleanup();reject(new Error('Google Sheets tidak memberikan balasan. Periksa deployment Apps Script dan coba lagi.'));},45000);
+    window[callback]=(result)=>{cleanup();if(!result||!result.success)reject(new Error((result&&result.message)||'Data Google Sheets gagal dibaca.'));else resolve(result);};
+    script.onerror=()=>{cleanup();reject(new Error('Tidak dapat menghubungi Apps Script. Periksa alamat deployment dan akses siapa saja yang memiliki link.'));};
+    script.src=APPS_SCRIPT_URL+'?action=export_all&callback='+encodeURIComponent(callback)+'&_='+Date.now();
+    document.body.appendChild(script);
+  });
+}
 async function exportExcel(scope){
   if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;
   if(typeof XLSX==='undefined'||typeof JSZip==='undefined'){
@@ -1013,8 +1026,11 @@ async function exportExcel(scope){
   }
   const btn=scope==='teacher'?document.getElementById('exportTeacherExcel'):document.getElementById('exportAdminExcel');
   if(btn) btn.disabled=true;
+  const originalText=btn?btn.textContent:'';
+  if(btn) btn.textContent='Mengambil data Google Sheets…';
   try{
-    const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();
+    // Data jurnal diambil langsung dari spreadsheet online, bukan data.journals/localStorage.
+    const remote=await requestSheetsExport();
     const templateWb=XLSX.read(JOURNAL_TEMPLATE_XLSX_BASE64,{type:'base64',cellDates:true});
     const zip=await JSZip.loadAsync(JOURNAL_TEMPLATE_XLSX_BASE64,{base64:true});
     const parser=new DOMParser(), serializer=new XMLSerializer();
@@ -1024,57 +1040,49 @@ async function exportExcel(scope){
     const relNs='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
     const pkgRelNs='http://schemas.openxmlformats.org/package/2006/relationships';
     const relTargets={};
-    Array.from(relsXml.getElementsByTagNameNS(pkgRelNs,'Relationship')).forEach(rel=>{
-      relTargets[rel.getAttribute('Id')]=rel.getAttribute('Target');
-    });
+    Array.from(relsXml.getElementsByTagNameNS(pkgRelNs,'Relationship')).forEach(rel=>{relTargets[rel.getAttribute('Id')]=rel.getAttribute('Target');});
+    const entriesBySheet=remote.sheets||{};
     const sheets=Array.from(workbookXml.getElementsByTagNameNS(mainNs,'sheet'));
+    let mapped=0;
     for(const sheetNode of sheets){
-      const cls=sheetNode.getAttribute('name');
+      const sheetName=sheetNode.getAttribute('name');
+      const cls=sheetName.replace(/^KELAS\s+/i,'').toUpperCase();
       const rid=sheetNode.getAttributeNS(relNs,'id');
       const target=relTargets[rid];
-      if(!target||!templateWb.Sheets[cls]) return;
+      if(!target||!templateWb.Sheets[sheetName]) continue;
       const zipPath=target.startsWith('/')?target.slice(1):(target.startsWith('xl/')?target:'xl/'+target);
-      const file=zip.file(zipPath);
-      if(!file) return;
-      const ws=templateWb.Sheets[cls];
+      const file=zip.file(zipPath); if(!file) continue;
+      const ws=templateWb.Sheets[sheetName];
       const dateCols={};
       for(let col=3;col<=367;col++){
         const addr=XLSX.utils.encode_cell({r:2,c:col-1});
-        if(ws[addr]){
-          const dk=exportCellDateKey(ws[addr].v);
-          if(dk) dateCols[dk]=XLSX.utils.encode_col(col-1);
-        }
+        if(ws[addr]){const dk=exportCellDateKey(ws[addr].v);if(dk)dateCols[dk]=XLSX.utils.encode_col(col-1);}
       }
       const nameRows={};
       for(let row=5;row<=220;row++){
-        const cell=ws['B'+row];
-        const name=String(cell&&cell.v!=null?cell.v:'').trim();
-        if(name) nameRows[name.toLocaleLowerCase('id')]=row;
+        const cell=ws['B'+row];const name=String(cell&&cell.v!=null?cell.v:'').trim();
+        if(name)nameRows[name.toLocaleLowerCase('id')]=row;
       }
-      const classRecords=records.filter(j=>String(j.cls||'').toUpperCase()===cls.replace('KELAS ',''));
-      const cellValues={};
-      classRecords.forEach(j=>{
-        const row=nameRows[String(j.name||'').trim().toLocaleLowerCase('id')];
-        const col=dateCols[exportCellDateKey(j.date)];
-        if(!row||!col) return;
-        const addr=col+row;
-        if(!cellValues[addr]) cellValues[addr]=[];
-        if(j.content) cellValues[addr].push(String(j.content));
-      });
+      const entries=Array.isArray(entriesBySheet[sheetName])?entriesBySheet[sheetName]:Array.isArray(entriesBySheet[cls])?entriesBySheet[cls]:[];
       const xmlDoc=parser.parseFromString(await file.async('string'),'application/xml');
-      Object.entries(cellValues).forEach(([addr,parts])=>exportSetInlineCell(xmlDoc,addr,parts.join('\n')));
+      entries.forEach(item=>{
+        const date=exportCellDateKey(item.tanggal||item.date);
+        const col=dateCols[date]; if(!col||item.value==null||String(item.value)==='')return;
+        const label=String(item.nama||item.rowName||'').trim();
+        const row=/^guru\s*:/i.test(label)?4:nameRows[label.toLocaleLowerCase('id')];
+        if(!row)return;
+        exportSetInlineCell(xmlDoc,col+row,String(item.value));mapped++;
+      });
       zip.file(zipPath,serializer.serializeToString(xmlDoc));
     }
+    if(!mapped){throw new Error('Data dari Google Sheets berhasil dibaca, tetapi tidak ada isi jurnal yang cocok dengan tanggal dan nama pada template Excel. Periksa apakah tanggal dan nama siswa di kedua file sama.');}
     const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;
-    const today=dateKey();
-    a.download='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';
-    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
-  }catch(err){
-    console.error(err);
-    alert('Ekspor Excel gagal: '+(err&&err.message?err.message:'Terjadi kesalahan.'));
-  }finally{if(btn)btn.disabled=false;}
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+    a.download='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+dateKey()+'.xlsx';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+    alert('Ekspor selesai menggunakan data Google Sheets terbaru. Sel terisi yang cocok dengan template: '+mapped.toLocaleString('id-ID')+'.');
+  }catch(err){console.error(err);alert('Ekspor Excel gagal: '+(err&&err.message?err.message:'Terjadi kesalahan.'));}
+  finally{if(btn){btn.disabled=false;btn.textContent=originalText;}}
 }
 
 $('#exportTeacherExcel').addEventListener('click',()=>exportExcel('teacher'));$('#exportAdminExcel').addEventListener('click',()=>exportExcel('admin'));
