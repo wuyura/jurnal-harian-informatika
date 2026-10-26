@@ -772,15 +772,14 @@ header #who { display: none !important; }
 </div>
 
 <div class="panel hidden" id="teacherNotesTab">
-<h2>Catatan tambahan guru</h2>
-<p class="hint">Tambahkan catatan khusus untuk siswa. Catatan ini tersimpan di browser yang digunakan.</p>
+<h2>Catatan Guru untuk Kelas</h2>
+<p class="hint">Catatan ini berlaku untuk seluruh kelas dan disimpan pada baris Guru di sheet kelas, pada kolom tanggal yang dipilih. Catatan siswa tidak akan tertimpa.</p>
 <label for="noteClass">Kelas</label><select id="noteClass"><option value="">Pilih kelas</option></select>
-<label for="noteStudent">Nama siswa</label><select id="noteStudent"><option value="">Pilih kelas terlebih dahulu</option></select>
 <label for="noteDate">Tanggal pembelajaran</label><input type="date" id="noteDate">
-<label for="noteText">Catatan guru (opsional)</label><textarea id="noteText" rows="4" placeholder="Tuliskan catatan tambahan untuk siswa..."></textarea>
-<button type="button" class="primary" id="saveTeacherNote">Simpan catatan</button>
+<label for="noteText">Catatan guru untuk seluruh kelas</label><textarea id="noteText" rows="4" maxlength="10000" placeholder="Contoh: Hari ini kelas mempelajari algoritma dan percabangan."></textarea>
+<button type="button" class="primary" id="loadTeacherNote">Muat catatan dari Google Sheets</button>
+<button type="button" class="primary" id="saveTeacherNote">Simpan catatan ke Google Sheets</button>
 <div id="noteStatus" class="status" role="status"></div>
-<div class="tablewrap" id="teacherNotesList"></div>
 </div>
 <div class="panel hidden" id="studentsTab"><h2>Daftar siswa</h2><label for="adminClass">Pilih kelas</label><select id="adminClass"></select><div class="row"><div><label for="newStudent">Nama siswa baru</label><input id="newStudent" placeholder="Nama lengkap"></div><button id="addStudent">Tambah siswa</button></div><div class="tablewrap" id="studentTable"></div><p class="hint">Perubahan daftar siswa tersimpan lokal di browser ini.</p></div>
 <div class="panel hidden" id="missingTab"><h2>Status Pengisian</h2><p class="hint">Periksa siswa yang sudah dan belum mengisi refleksi berdasarkan kelas dan tanggal pembelajaran.</p><div class="panel" id="completionChecker" style="background:#f8faff;border:1px solid #dfe6fb;margin:16px 0;padding:18px">
@@ -975,32 +974,53 @@ $('#adminClass').addEventListener('change',renderStudents);$('#addStudent').addE
 function renderStudents(){if(current?.role!=='admin')return;const c=$('#adminClass').value,names=[...(data.roster[c]||[])].sort((a,b)=>a.localeCompare(b,'id'));$('#studentTable').innerHTML=`<table><thead><tr><th>No.</th><th>Nama siswa</th><th>Aksi</th></tr></thead><tbody>${names.map((n,i)=>`<tr><td>${i+1}</td><td>${esc(n)}</td><td><button class="tab" data-rename="${esc(n)}">Ubah</button> <button class="tab" data-remove="${esc(n)}">Hapus</button></td></tr>`).join('')}</tbody></table><p class="hint">${names.length} siswa · ${c}</p>`;$('#studentTable').querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{const old=b.dataset.rename,n=prompt('Nama baru:',old);if(!n?.trim())return;data.roster[c]=data.roster[c].map(x=>x===old?n.trim():x);save();renderStudents()});$('#studentTable').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{const n=b.dataset.remove;if(confirm('Hapus '+n+' dari daftar? Riwayat lama tidak ikut dihapus.')){data.roster[c]=data.roster[c].filter(x=>x!==n);save();renderStudents()}})}
 
 
-if(!Array.isArray(data.teacherNotes)) data.teacherNotes=[];
+
 function initTeacherNotes(){
- const cls=$('#noteClass'), stu=$('#noteStudent');
+ const cls=$('#noteClass');
  if(cls&&cls.options.length<=1) classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;cls.appendChild(o)});
  if($('#noteDate')&&!$('#noteDate').value) $('#noteDate').value=dateKey();
- renderTeacherNotes();
 }
-function updateNoteStudentOptions(){
- const cls=$('#noteClass'),stu=$('#noteStudent');if(!cls||!stu)return;
- const names=(data.roster[cls.value]||ROSTER[cls.value]||[]);
- stu.innerHTML='<option value="">Pilih nama siswa</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
- renderTeacherNotes();
+function showNoteStatus(message, type=''){
+ const el=$('#noteStatus'); if(!el)return;
+ el.textContent=message; el.className='status'+(type?' '+type:'');
 }
-function renderTeacherNotes(){
- const el=$('#teacherNotesList');if(!el)return;
- const cls=$('#noteClass')?.value||'',name=$('#noteStudent')?.value||'';
- const rows=data.teacherNotes.filter(n=>(!cls||n.cls===cls)&&(!name||n.name===name)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
- el.innerHTML=rows.length?'<table><thead><tr><th>Tanggal</th><th>Kelas</th><th>Nama siswa</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody>'+rows.map(n=>'<tr><td>'+esc(n.date)+'</td><td>'+esc(n.cls)+'</td><td>'+esc(n.name)+'</td><td>'+esc(n.text)+'</td><td><button type="button" class="tab" data-note-delete="'+n.id+'">Hapus</button></td></tr>').join('')+'</tbody></table>':'<p class="hint" style="padding:12px">Belum ada catatan untuk pilihan ini.</p>';
- el.querySelectorAll('[data-note-delete]').forEach(b=>b.onclick=()=>{if(confirm('Hapus catatan ini?')){data.teacherNotes=data.teacherNotes.filter(n=>String(n.id)!==b.dataset.noteDelete);save();renderTeacherNotes()}});
+function loadTeacherNote(){
+ const cls=$('#noteClass')?.value, date=$('#noteDate')?.value;
+ if(!cls||!date){showNoteStatus('Pilih kelas dan tanggal terlebih dahulu.','error');return}
+ showNoteStatus('Memuat catatan dari Google Sheets...');
+ const callback='jurnalCatatanCallback_'+Date.now();
+ window[callback]=(result)=>{
+   try{
+     if(result&&result.success){
+       $('#noteText').value=result.catatan||'';
+       showNoteStatus(result.catatan?'Catatan kelas berhasil dimuat dari Google Sheets.':'Belum ada catatan untuk kelas dan tanggal ini.','success');
+     }else showNoteStatus(result?.message||'Catatan tidak berhasil dimuat.','error');
+   }finally{delete window[callback]; const script=document.getElementById(callback); if(script)script.remove();}
+ };
+ const script=document.createElement('script');script.id=callback;
+ script.onerror=()=>{showNoteStatus('Tidak dapat memuat catatan. Periksa koneksi dan deployment Apps Script.','error');delete window[callback];script.remove()};
+ script.src=APPS_SCRIPT_URL+'?action=teacher_note&kelas='+encodeURIComponent(cls)+'&tanggal='+encodeURIComponent(date)+'&callback='+encodeURIComponent(callback);
+ document.body.appendChild(script);
 }
-$('#noteClass')?.addEventListener('change',updateNoteStudentOptions);
-$('#noteStudent')?.addEventListener('change',renderTeacherNotes);
-$('#saveTeacherNote')?.addEventListener('click',()=>{
- const cls=$('#noteClass').value,name=$('#noteStudent').value,date=$('#noteDate').value,textValue=$('#noteText').value.trim();
- if(!cls||!name||!date||!textValue){$('#noteStatus').textContent='Lengkapi kelas, nama siswa, tanggal, dan catatan.';$('#noteStatus').className='status error';return}
- data.teacherNotes.push({id:Date.now(),cls,name,date,text:textValue,author:current?.name||current?.username||'Guru'});save();
- $('#noteText').value='';$('#noteStatus').textContent='Catatan tersimpan di browser ini.';$('#noteStatus').className='status success';renderTeacherNotes();
+$('#loadTeacherNote')?.addEventListener('click',loadTeacherNote);
+$('#noteClass')?.addEventListener('change',()=>{ $('#noteText').value=''; });
+$('#noteDate')?.addEventListener('change',()=>{ $('#noteText').value=''; });
+$('#saveTeacherNote')?.addEventListener('click',async()=>{
+ const cls=$('#noteClass')?.value,date=$('#noteDate')?.value,textValue=$('#noteText')?.value.trim()||'';
+ if(!cls||!date){showNoteStatus('Pilih kelas dan tanggal terlebih dahulu.','error');return}
+ if(textValue.length>10000){showNoteStatus('Catatan terlalu panjang.','error');return}
+ const button=$('#saveTeacherNote');button.disabled=true;
+ showNoteStatus('Mengirim catatan ke Google Sheets...');
+ try{
+   await fetch(APPS_SCRIPT_URL,{
+     method:'POST',mode:'no-cors',
+     headers:{'Content-Type':'text/plain;charset=utf-8'},
+     body:JSON.stringify({action:'teacher_note',kelas:cls,tanggal:date,catatan:textValue})
+   });
+   showNoteStatus('Permintaan penyimpanan dikirim. Muat ulang catatan dari Google Sheets untuk memeriksa hasilnya.');
+ }catch(error){
+   showNoteStatus('Pengiriman gagal. Periksa koneksi internet lalu coba lagi.','error');
+ }finally{button.disabled=false}
 });
+
 </script></body></html>
