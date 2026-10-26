@@ -777,7 +777,6 @@ header #who { display: none !important; }
 <label for="noteClass">Kelas</label><select id="noteClass"><option value="">Pilih kelas</option></select>
 <label for="noteDate">Tanggal pembelajaran</label><input type="date" id="noteDate">
 <label for="noteText">Catatan guru untuk seluruh kelas</label><textarea id="noteText" rows="4" maxlength="10000" placeholder="Contoh: Hari ini kelas mempelajari algoritma dan percabangan."></textarea>
-<button type="button" class="primary" id="loadTeacherNote">Muat catatan dari Google Sheets</button>
 <button type="button" class="primary" id="saveTeacherNote">Simpan catatan ke Google Sheets</button>
 <div id="noteStatus" class="status" role="status"></div>
 </div>
@@ -960,7 +959,43 @@ function renderMyJournals(){if(!current)return;$('#myJournals').innerHTML=journa
 let adminJournalPage=1;const ADMIN_JOURNAL_PAGE_SIZE=20;
 function setupJournalFilters(){const sel=$('#journalFilterClass');if(sel&&sel.options.length===1)classes.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent='Kelas '+c;sel.appendChild(o)});}
 function renderAllJournals(){if(current?.role!=='admin')return;setupJournalFilters();setupCompletionChecker();const all=data.journals.slice();$('#journalTotal').textContent=all.length.toLocaleString('id-ID');const cls=$('#journalFilterClass').value,from=$('#journalFilterFrom').value,to=$('#journalFilterTo').value,name=$('#journalFilterName').value.trim().toLocaleLowerCase('id');const filtered=all.filter(j=>(!cls||j.cls===cls)&&(!from||j.date>=from)&&(!to||j.date<=to)&&(!name||String(j.name||'').toLocaleLowerCase('id').includes(name))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||String(a.name||'').localeCompare(String(b.name||''),'id'));const pages=Math.max(1,Math.ceil(filtered.length/ADMIN_JOURNAL_PAGE_SIZE));adminJournalPage=Math.min(adminJournalPage,pages);const shown=filtered.slice((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE,adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE);$('#journalResultsInfo').textContent=filtered.length?`Menampilkan ${((adminJournalPage-1)*ADMIN_JOURNAL_PAGE_SIZE)+1}–${Math.min(adminJournalPage*ADMIN_JOURNAL_PAGE_SIZE,filtered.length)} dari ${filtered.length} catatan sesuai filter.`:'Tidak ada jurnal yang sesuai dengan filter.';$('#allJournals').innerHTML=journalTable(shown,true);$('#journalPageInfo').textContent=`Halaman ${adminJournalPage} dari ${pages}`;$('#journalPrev').disabled=adminJournalPage<=1;$('#journalNext').disabled=adminJournalPage>=pages;}
-function exportExcel(scope){if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;if(typeof XLSX==='undefined'){alert('Fitur Excel membutuhkan koneksi internet saat membuka halaman. Muat ulang halaman dengan internet aktif, lalu coba lagi.');return}const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();const wb=XLSX.utils.book_new();classes.forEach(cls=>{const dates=[...new Set(records.filter(j=>j.cls===cls).map(j=>j.date).filter(Boolean))].sort();const rows=[['Nama siswa',...dates]];const roster=[...(data.roster[cls]||[])];records.filter(j=>j.cls===cls).forEach(j=>{if(j.name&&!roster.includes(j.name))roster.push(j.name)});roster.sort((a,b)=>a.localeCompare(b,'id'));roster.forEach(name=>{const row=[name];dates.forEach(date=>{const matching=records.filter(j=>j.cls===cls&&j.name===name&&j.date===date);row.push(matching.map(j=>j.content).filter(Boolean).join('\n'))});rows.push(row)});const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:34},...dates.map(()=>({wch:38}))];ws['!freeze']={xSplit:1,ySplit:1};XLSX.utils.book_append_sheet(wb,ws,cls)});const today=dateKey();const filename='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';XLSX.writeFile(wb,filename)}
+function exportExcel(scope){
+if(!current||(scope==='teacher'&&current.role!=='teacher')||(scope==='admin'&&current.role!=='admin'))return;
+if(typeof XLSX==='undefined'){alert('Fitur Excel membutuhkan koneksi internet saat membuka halaman. Muat ulang halaman dengan internet aktif, lalu coba lagi.');return}
+const records=scope==='teacher'?data.journals.filter(j=>j.owner===current.username):data.journals.slice();
+const wb=XLSX.utils.book_new();
+classes.forEach(cls=>{
+  const classRecords=records.filter(j=>j.cls===cls);
+  const dates=[...new Set(classRecords.map(j=>j.date).filter(Boolean))].sort();
+  const roster=[...(data.roster[cls]||[])];
+  classRecords.forEach(j=>{if(j.name&&!roster.includes(j.name))roster.push(j.name)});
+  roster.sort((a,b)=>a.localeCompare(b,'id'));
+  // Meniru susunan lembar asli: judul di B1, tanggal di baris 3 mulai C,
+  // catatan guru di baris 4, dan nama siswa mulai baris 5.
+  const width=2+dates.length;
+  const rows=Array.from({length:4},()=>Array(width).fill(null));
+  rows[0][1]='JURNAL HARIAN';
+  rows[2][1]='Nama/Tanggal';
+  dates.forEach((date,i)=>{const d=new Date(date+'T00:00:00');rows[2][2+i]=isNaN(d.getTime())?date:d;});
+  rows[3][1]='Guru : Wulan Yustia Rahmah, S.Sos';
+  const teacherNote=(data.teacherNotes||[]).find(n=>n.cls===cls&&(!n.date||dates.includes(n.date)));
+  if(teacherNote&&teacherNote.date){const di=dates.indexOf(teacherNote.date);if(di>=0)rows[3][2+di]=teacherNote.content||teacherNote.note||'';}
+  roster.forEach(name=>{
+    const row=Array(width).fill(null);row[1]=name;
+    dates.forEach((date,i)=>{const matching=classRecords.filter(j=>j.name===name&&j.date===date);row[2+i]=matching.map(j=>j.content).filter(Boolean).join('\n')||null;});
+    rows.push(row);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:3},{wch:38},...dates.map(()=>({wch:22}))];
+  ws['!freeze']={xSplit:2,ySplit:4};
+  // Format tanggal seperti lembar jurnal asli.
+  dates.forEach((date,i)=>{const cell=ws[XLSX.utils.encode_cell({r:2,c:2+i})];if(cell&&cell.t==='d')cell.z='d/m/yyyy';});
+  XLSX.utils.book_append_sheet(wb,ws,'KELAS '+cls);
+});
+const today=dateKey();
+const filename='Jurnal_Harian_Informatika_'+(scope==='teacher'?'Guru_'+(current.username||'akun')+'_':'Semua_')+today+'.xlsx';
+XLSX.writeFile(wb,filename);
+}
 $('#exportTeacherExcel').addEventListener('click',()=>exportExcel('teacher'));$('#exportAdminExcel').addEventListener('click',()=>exportExcel('admin'));
 ['journalFilterClass','journalFilterFrom','journalFilterTo','journalFilterName'].forEach(id=>$('#'+id).addEventListener(id==='journalFilterName'?'input':'change',()=>{adminJournalPage=1;renderAllJournals()}));$('#journalPrev').addEventListener('click',()=>{if(adminJournalPage>1){adminJournalPage--;renderAllJournals()}});$('#journalNext').addEventListener('click',()=>{adminJournalPage++;renderAllJournals()});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['accountsTab','teacherNotesTab','studentsTab','journalsTab'].forEach(id=>$('#'+id).classList.toggle('hidden',id!==b.dataset.tab))}));
