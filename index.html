@@ -1017,55 +1017,10 @@ $('#saveTeacherNote')?.addEventListener('click',async()=>{
      headers:{'Content-Type':'text/plain;charset=utf-8'},
      body:JSON.stringify({action:'teacher_note',kelas:cls,tanggal:date,catatan:textValue})
    });
-   // Baca kembali dari endpoint GET agar tidak sekadar menganggap POST berhasil.
-   await new Promise(resolve=>setTimeout(resolve,1200));
-   await verifyTeacherNote(cls,date,textValue);
+   showNoteStatus('Permintaan penyimpanan dikirim. Muat ulang catatan dari Google Sheets untuk memeriksa hasilnya.');
  }catch(error){
-   showNoteStatus('Belum dapat memverifikasi penyimpanan. Pastikan Apps Script sudah diperbarui dan deployment memakai versi terbaru.','error');
+   showNoteStatus('Pengiriman gagal. Periksa koneksi internet lalu coba lagi.','error');
  }finally{button.disabled=false}
-});
-function verifyTeacherNote(cls,date,expected){
- return new Promise(resolve=>{
-   const callback='jurnalCatatanVerifikasi_'+Date.now();
-   let finished=false;
-   const cleanup=()=>{
-     if(finished)return; finished=true;
-     delete window[callback];
-     const old=document.getElementById(callback); if(old)old.remove();
-   };
-   const timer=setTimeout(()=>{
-     cleanup();
-     showNoteStatus('Tidak ada balasan dari Apps Script. Periksa URL deployment dan akses Web App.','error');
-     resolve(false);
-   },10000);
-   window[callback]=(result)=>{
-     clearTimeout(timer);
-     try{
-       if(result&&result.success){
-         const actual=String(result.catatan||'').trim();
-         if(actual===expected){
-           $('#noteText').value=actual;
-           showNoteStatus('Terverifikasi: catatan sudah tersimpan di Google Sheets pada baris Guru untuk kelas dan tanggal ini.','success');
-           resolve(true);
-         }else{
-           showNoteStatus('Catatan belum cocok saat dibaca kembali. Periksa deployment Apps Script dan baris Guru di sheet kelas.','error');
-           resolve(false);
-         }
-       }else{
-         showNoteStatus((result&&result.message)||'Apps Script menolak pembacaan catatan. Pastikan kode terbaru sudah di-deploy.','error');
-         resolve(false);
-       }
-     }finally{cleanup()}
-   };
-   const script=document.createElement('script');script.id=callback;
-   script.onerror=()=>{
-     clearTimeout(timer);cleanup();
-     showNoteStatus('Gagal membaca kembali catatan dari Apps Script. Periksa URL deployment.','error');
-     resolve(false);
-   };
-   script.src=APPS_SCRIPT_URL+'?action=teacher_note&kelas='+encodeURIComponent(cls)+'&tanggal='+encodeURIComponent(date)+'&callback='+encodeURIComponent(callback)+'&_='+Date.now();
-   document.body.appendChild(script);
- });
 });
 
 </script></body></html>
