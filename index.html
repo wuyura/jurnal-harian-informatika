@@ -1006,6 +1006,33 @@ function exportSetInlineCell(xmlDoc, address, value){
 function exportColumnNumber(letters){
   let n=0; for(const ch of String(letters||'')) n=n*26+ch.charCodeAt(0)-64; return n;
 }
+function exportHideColumn(xmlDoc, columnNumber){
+  const ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  let cols=xmlDoc.getElementsByTagNameNS(ns,'cols')[0];
+  if(!cols){
+    cols=xmlDoc.createElementNS(ns,'cols');
+    const sheetFormat=xmlDoc.getElementsByTagNameNS(ns,'sheetFormatPr')[0];
+    const sheetData=xmlDoc.getElementsByTagNameNS(ns,'sheetData')[0];
+    if(sheetFormat&&sheetFormat.nextSibling) xmlDoc.documentElement.insertBefore(cols,sheetFormat.nextSibling);
+    else if(sheetData) xmlDoc.documentElement.insertBefore(cols,sheetData);
+    else xmlDoc.documentElement.appendChild(cols);
+  }
+  const colNodes=Array.from(cols.getElementsByTagNameNS(ns,'col'));
+  let col=colNodes.find(node=>Number(node.getAttribute('min'))<=columnNumber&&Number(node.getAttribute('max'))>=columnNumber);
+  if(col){
+    col.setAttribute('hidden','1');
+    col.setAttribute('width','0');
+    col.setAttribute('customWidth','1');
+  }else{
+    col=xmlDoc.createElementNS(ns,'col');
+    col.setAttribute('min',String(columnNumber));
+    col.setAttribute('max',String(columnNumber));
+    col.setAttribute('hidden','1');
+    col.setAttribute('width','0');
+    col.setAttribute('customWidth','1');
+    cols.appendChild(col);
+  }
+}
 function requestSheetsExport(){
   return new Promise((resolve,reject)=>{
     const callback='jurnalExport_'+Date.now()+'_'+Math.random().toString(36).slice(2);
@@ -1065,13 +1092,19 @@ async function exportExcel(scope){
       }
       const entries=Array.isArray(entriesBySheet[sheetName])?entriesBySheet[sheetName]:Array.isArray(entriesBySheet[cls])?entriesBySheet[cls]:[];
       const xmlDoc=parser.parseFromString(await file.async('string'),'application/xml');
+      const filledDates=new Set();
       entries.forEach(item=>{
         const date=exportCellDateKey(item.tanggal||item.date);
-        const col=dateCols[date]; if(!col||item.value==null||String(item.value)==='')return;
+        const col=dateCols[date]; if(!col||item.value==null||String(item.value).trim()==='')return;
         const label=String(item.nama||item.rowName||'').trim();
         const row=/^guru\s*:/i.test(label)?4:nameRows[label.toLocaleLowerCase('id')];
         if(!row)return;
         exportSetInlineCell(xmlDoc,col+row,String(item.value));mapped++;
+        filledDates.add(date);
+      });
+      // Tampilkan hanya kolom tanggal yang memiliki setidaknya satu catatan.
+      Object.entries(dateCols).forEach(([date,colLetters])=>{
+        if(!filledDates.has(date)) exportHideColumn(xmlDoc,exportColumnNumber(colLetters));
       });
       zip.file(zipPath,serializer.serializeToString(xmlDoc));
     }
