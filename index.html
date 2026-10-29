@@ -933,12 +933,12 @@ $('#studentJournalForm').addEventListener('submit', async e => {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ kelas, nama, tanggal, refleksi })
+      body: JSON.stringify({ action: 'student', kelas, nama, tanggal, refleksi })
     });
 
     // no-cors membuat balasan server tidak dapat dibaca oleh browser.
     // Karena itu, jangan mengklaim data sudah tersimpan sebelum dicek di Sheets.
-    pesan.textContent = 'Permintaan pengiriman sudah dilakukan. Periksa Google Sheets untuk memastikan jurnal tersimpan.';
+    pesan.textContent = 'Pengiriman sudah dilakukan. Karena browser tidak dapat membaca balasan Apps Script, pastikan refleksi muncul di Google Sheets sebelum menutup halaman.';
     pesan.className = 'status';
   } catch (error) {
     pesan.textContent = 'Pengiriman gagal. Periksa koneksi internet, lalu coba lagi.';
